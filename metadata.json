@@ -1,0 +1,6 @@
+{
+  "name": "Track Hire",
+  "description": "A comprehensive Job Application Tracker featuring a Kanban board, sortable table view, dynamic analytics dashboard, deadline flags, and AI-powered metadata extraction from raw job postings.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

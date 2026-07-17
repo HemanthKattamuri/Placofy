@@ -1,0 +1,127 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Space Grotesk", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+@variant dark (&:where(.dark, .dark *));
+
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+#root {
+  flex: 1 1 auto;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: #f8fafc; /* Tailwind slate-50 */
+  color: #0f172a; /* Tailwind slate-900 */
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+/* Custom Deep Dark/Slate Theme Styles for Perfect Dark Mode Compatibility */
+.dark body {
+  background-color: #090d16 !important;
+  color: #f1f5f9 !important;
+}
+
+/* Override utility classes in dark mode to guarantee visually gorgeous styling */
+.dark .bg-white {
+  background-color: #111827 !important; /* Tailwind slate-900 equivalent */
+}
+
+.dark .bg-slate-50, 
+.dark .bg-slate-50\/50, 
+.dark .bg-indigo-50\/20, 
+.dark .bg-indigo-50\/25,
+.dark .bg-slate-550 {
+  background-color: #1f2937 !important; /* Tailwind slate-800 equivalent */
+}
+
+/* Precision text contrast overrides for slate text utilities, protecting semantic badges */
+.dark .text-slate-900 { color: #ffffff !important; }
+.dark .text-slate-800 { color: #f8fafc !important; }
+.dark .text-slate-700 { color: #f1f5f9 !important; }
+.dark .text-slate-650 { color: #e2e8f0 !important; }
+.dark .text-slate-600 { color: #cbd5e1 !important; }
+.dark .text-slate-500 { color: #94a3b8 !important; }
+.dark .text-slate-400 { color: #64748b !important; }
+
+.dark h1, 
+.dark h2, 
+.dark h3, 
+.dark h4 {
+  color: #ffffff !important;
+}
+
+/* Prevent bright tags from being overwritten by general dark color overrides */
+.dark .bg-amber-50 { background-color: rgba(120, 53, 4, 0.15) !important; border-color: rgba(120, 53, 4, 0.3) !important; }
+.dark .bg-emerald-50 { background-color: rgba(6, 78, 59, 0.15) !important; border-color: rgba(6, 78, 59, 0.3) !important; }
+.dark .bg-rose-50 { background-color: rgba(159, 18, 57, 0.15) !important; border-color: rgba(159, 18, 57, 0.3) !important; }
+.dark .bg-violet-50 { background-color: rgba(76, 29, 149, 0.15) !important; border-color: rgba(76, 29, 149, 0.3) !important; }
+.dark .bg-sky-50 { background-color: rgba(12, 74, 96, 0.15) !important; border-color: rgba(12, 74, 96, 0.3) !important; }
+.dark .bg-indigo-50 { background-color: rgba(49, 46, 129, 0.15) !important; border-color: rgba(49, 46, 129, 0.3) !important; }
+
+.dark .text-amber-700 { color: #fbbf24 !important; }
+.dark .text-emerald-700 { color: #34d399 !important; }
+.dark .text-rose-700 { color: #f87171 !important; }
+.dark .text-violet-700 { color: #c084fc !important; }
+.dark .text-sky-700 { color: #38bdf8 !important; }
+.dark .text-indigo-700 { color: #818cf8 !important; }
+
+.dark .border-slate-200, 
+.dark .border-slate-100, 
+.dark .border-indigo-100,
+.dark .border-indigo-200\/30 {
+  border-color: #1f2937 !important; /* Tailwind gray-800 */
+}
+
+.dark input, 
+.dark textarea, 
+.dark select {
+  background-color: #1f2937 !important;
+  color: #ffffff !important;
+  border-color: #374151 !important;
+}
+
+.dark input::placeholder, 
+.dark textarea::placeholder {
+  color: #6b7280 !important;
+}
+
+.dark .hover\:bg-slate-50:hover,
+.dark .hover\:bg-slate-50\/50:hover,
+.dark .hover\:bg-indigo-50\/50:hover {
+  background-color: #1f2937 !important;
+}
+
+.dark .hover\:bg-indigo-50:hover {
+  background-color: #312e81 !important;
+}
+
+.dark .text-indigo-600 {
+  color: #818cf8 !important;
+}
+
+.dark .border-indigo-200 {
+  border-color: #4338ca !important;
+}
+
+.dark .bg-indigo-50\/70, 
+.dark .bg-indigo-50\/40,
+.dark .bg-indigo-950\/10,
+.dark .bg-indigo-950\/45,
+.dark .bg-indigo-950\/50 {
+  background-color: #1e1b4b !important;
+}
