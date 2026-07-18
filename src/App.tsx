@@ -30,7 +30,6 @@ import {
   CheckCircle,
   FileText,
   MoreVertical,
-  RefreshCw,
   Download,
   Upload,
   Share2,
@@ -53,7 +52,6 @@ import {
   FolderGit
 } from "lucide-react";
 import { JobApplication, JobStatus, JobSource, SortField, SortOrder } from "./types";
-import { SEED_APPLICATIONS } from "./seedData";
 import { onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, GoogleAuthProvider, signInWithPopup, updateProfile } from "firebase/auth";
 import { auth } from "./firebase";
 
@@ -92,7 +90,7 @@ function needsFollowUp(app: JobApplication): boolean {
   return diffDays >= 14;
 }
 
-// Helper to get suggested keywords for any job application, with sensible defaults for seed data
+// Helper to get suggested keywords for any job application
 export function getKeywordsForApp(app: JobApplication): string[] {
   if (app.suggestedKeywords && app.suggestedKeywords.length > 0) {
     return app.suggestedKeywords;
@@ -623,11 +621,11 @@ function CareerNotesView({ userNotes, setUserNotes, setNotifications }: CareerNo
 
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(() => {
-    return localStorage.getItem("track_hire_user_logged") === "true";
+    return localStorage.getItem("placofy_user_logged") === "true";
   });
 
   const [userProfile, setUserProfile] = useState(() => {
-    const saved = localStorage.getItem("track_hire_user_profile");
+    const saved = localStorage.getItem("placofy_user_profile");
     if (saved) {
       try {
         return JSON.parse(saved);
@@ -636,47 +634,43 @@ export default function App() {
       }
     }
     return {
-      name: "Rajesh Kumar",
-      email: "paruluniversity302@gmail.com",
-      title: "Senior Software Engineer",
-      location: "Vadodara, Gujarat, India",
-      targetRole: "Full Stack Developer",
-      skills: "React, Node.js, TypeScript, Python, Tailwind CSS, PostgreSQL, REST APIs",
-      linkedinUrl: "https://linkedin.com/in/rajesh-kumar-dev",
-      bio: "Passionate developer focusing on building responsive and performant web applications."
+      name: "",
+      email: "",
+      title: "",
+      location: "",
+      targetRole: "",
+      skills: "",
+      linkedinUrl: "",
+      bio: ""
     };
   });
 
   useEffect(() => {
-    localStorage.setItem("track_hire_user_profile", JSON.stringify(userProfile));
+    localStorage.setItem("placofy_user_profile", JSON.stringify(userProfile));
   }, [userProfile]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         setIsLoggedIn(true);
-        localStorage.setItem("track_hire_user_logged", "true");
+        localStorage.setItem("placofy_user_logged", "true");
         // Update user profile dynamically with Firebase details if they differ
         setUserProfile((prev) => {
           const updated = { ...prev };
-          if (user.email && prev.email !== user.email) updated.email = user.email;
-          if (user.displayName && prev.name !== user.displayName) updated.name = user.displayName;
+          if (user.email && !prev.email) updated.email = user.email;
+          // Only fill name from Firebase when local name is empty so edits are not overwritten
+          if (user.displayName && !prev.name.trim()) updated.name = user.displayName;
           return updated;
         });
       } else {
-        const isLoggedLocal = localStorage.getItem("track_hire_user_logged") === "true";
-        const isDemo = localStorage.getItem("track_hire_is_demo") === "true";
-        if (!isLoggedLocal || !isDemo) {
-          setIsLoggedIn(false);
-          localStorage.removeItem("track_hire_user_logged");
-          localStorage.removeItem("track_hire_is_demo");
-        }
+        setIsLoggedIn(false);
+        localStorage.removeItem("placofy_user_logged");
       }
     });
     return () => unsubscribe();
   }, []);
 
-  const [applications, setApplications] = useState<JobApplication[]>(SEED_APPLICATIONS);
+  const [applications, setApplications] = useState<JobApplication[]>([]);
   const [viewMode, setViewMode] = useState<"kanban" | "table" | "ats" | "profile" | "resumes" | "notes">("kanban");
   
   // Dynamic live system time
@@ -716,36 +710,23 @@ export default function App() {
   const [extractionError, setExtractionError] = useState("");
 
   // ATS Optimizer states
-  const [atsResumeText, setAtsResumeText] = useState(
-    "John Doe\nExperienced Frontend Developer\n\nSkills: React, JavaScript, HTML5, CSS3, Tailwind CSS, Responsive Web Design, Git, Webpack, Agile Methodologies, REST APIs.\n\nExperience:\n- Built responsive React dashboards and web apps.\n- Collaborated with product teams to design clean user interfaces.\n- Optimized site performance and reduced bundle sizes."
-  );
-  const [uploadedFileName, setUploadedFileName] = useState<string>("john_doe_resume.txt");
-  const [uploadedFileSize, setUploadedFileSize] = useState<string>("0.4 KB");
-  const [atsJobDescriptionText, setAtsJobDescriptionText] = useState(
-    "We are looking for a Senior Frontend Engineer to join our team. The ideal candidate will have extensive experience with React, TypeScript, and modern state management. You will build user-friendly interfaces, optimize web performance, and collaborate with backend developers. Skills required: React, TypeScript, Webpack, Tailwind CSS, Responsive Design, REST APIs, Git."
-  );
+  const [atsResumeText, setAtsResumeText] = useState("");
+  const [uploadedFileName, setUploadedFileName] = useState<string>("");
+  const [uploadedFileSize, setUploadedFileSize] = useState<string>("");
+  const [atsJobDescriptionText, setAtsJobDescriptionText] = useState("");
   const [prefCompanyName, setPrefCompanyName] = useState("");
-  const [selectedAtsAppId, setSelectedAtsAppId] = useState<string>("seed-1");
+  const [selectedAtsAppId, setSelectedAtsAppId] = useState<string>("");
   const [aiAtsResult, setAiAtsResult] = useState<{
     score: number;
     matched: string[];
     missing: string[];
     atsSuggestions: string[];
-  } | null>({
-    score: 85,
-    matched: ["React", "TypeScript", "Tailwind CSS", "REST APIs", "Git", "Responsive Design"],
-    missing: ["Webpack"],
-    atsSuggestions: [
-      "Explicitly mention your experience with modern bundlers like Webpack or Vite.",
-      "Highlight collaboration in agile environments under your latest frontend role.",
-      "Add quantifiable achievements about UI component building and performance load optimization."
-    ]
-  });
+  } | null>(null);
   const [isAnalyzingResume, setIsAnalyzingResume] = useState(false);
   const [showResumePreview, setShowResumePreview] = useState(false);
 
   // Resume bullet optimizer state
-  const [bulletToOptimize, setBulletToOptimize] = useState("Worked on React components, made some UI screens, and resolved front-end tickets.");
+  const [bulletToOptimize, setBulletToOptimize] = useState("");
   const [optimizedBulletResult, setOptimizedBulletResult] = useState("");
   const [isOptimizingBullet, setIsOptimizingBullet] = useState(false);
 
@@ -758,11 +739,11 @@ export default function App() {
 
   // --- Dark Mode State ---
   const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
-    return localStorage.getItem("track_hire_dark_mode") === "true";
+    return localStorage.getItem("placofy_dark_mode") === "true";
   });
 
   useEffect(() => {
-    localStorage.setItem("track_hire_dark_mode", String(isDarkMode));
+    localStorage.setItem("placofy_dark_mode", String(isDarkMode));
     if (isDarkMode) {
       document.documentElement.classList.add("dark");
       document.body.classList.add("dark");
@@ -774,36 +755,17 @@ export default function App() {
 
   // --- Resume Storage State ---
   const [resumes, setResumes] = useState<any[]>(() => {
-    const saved = localStorage.getItem("track_hire_resumes");
+    const saved = localStorage.getItem("placofy_resumes");
     if (saved) {
       try {
         return JSON.parse(saved);
       } catch (e) {}
     }
-    return [
-      {
-        id: "resume-1",
-        name: "Rajesh_Kumar_Senior_FullStack.txt",
-        fileType: "txt",
-        fileSize: "1.2 KB",
-        uploadedAt: "2026-06-25",
-        isSelected: true,
-        content: "Rajesh Kumar\nSenior Software Engineer | paruluniversity302@gmail.com\n\nSkills: React, Node.js, TypeScript, Python, Tailwind CSS, PostgreSQL, REST APIs, System Design, Git, AWS.\n\nExperience:\n- Developed enterprise full stack systems using React, TypeScript and Node.js.\n- Engineered performant state management and real-time data sync processes.\n- Integrated multiple secure REST APIs, databases, and authentication endpoints."
-      },
-      {
-        id: "resume-2",
-        name: "Rajesh_Kumar_Frontend_Specialist.txt",
-        fileType: "txt",
-        fileSize: "0.9 KB",
-        uploadedAt: "2026-07-01",
-        isSelected: false,
-        content: "Rajesh Kumar\nSenior Frontend Specialist\n\nSkills: React, JavaScript, TypeScript, Tailwind CSS, CSS3, Responsive Design, State Management, UI Performance.\n\nExperience:\n- Built rich interactive UI widgets and customizable dashboard visualizers.\n- Reduced asset file sizes by 35% through Webpack/Vite code splitting.\n- Led CSS standard migration to modern utility-first Tailwind structure."
-      }
-    ];
+    return [];
   });
 
   useEffect(() => {
-    localStorage.setItem("track_hire_resumes", JSON.stringify(resumes));
+    localStorage.setItem("placofy_resumes", JSON.stringify(resumes));
     // Synchronize active resume with standard ATS analyzer state so it uses the selected resume!
     const active = resumes.find(r => r.isSelected);
     if (active) {
@@ -817,7 +779,7 @@ export default function App() {
 
   // --- Career Notes State ---
   const [userNotes, setUserNotes] = useState<any[]>(() => {
-    const saved = localStorage.getItem("track_hire_user_notes");
+    const saved = localStorage.getItem("placofy_user_notes");
     if (saved) {
       try {
         return JSON.parse(saved);
@@ -835,12 +797,12 @@ export default function App() {
   });
 
   useEffect(() => {
-    localStorage.setItem("track_hire_user_notes", JSON.stringify(userNotes));
+    localStorage.setItem("placofy_user_notes", JSON.stringify(userNotes));
   }, [userNotes]);
 
   // --- Notifications State ---
   const [notifications, setNotifications] = useState<any[]>(() => {
-    const saved = localStorage.getItem("track_hire_notifications");
+    const saved = localStorage.getItem("placofy_notifications");
     if (saved) {
       try {
         return JSON.parse(saved);
@@ -849,7 +811,7 @@ export default function App() {
     return [
       {
         id: "notif-1",
-        title: "Welcome to Track Hire Dashboard",
+        title: "Welcome to Placofy Dashboard",
         message: "Your job applications, resume storage, and custom notes are now fully synchronized and ready for use.",
         time: "Just now",
         isRead: false,
@@ -869,7 +831,7 @@ export default function App() {
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
 
   useEffect(() => {
-    localStorage.setItem("track_hire_notifications", JSON.stringify(notifications));
+    localStorage.setItem("placofy_notifications", JSON.stringify(notifications));
   }, [notifications]);
 
   // Automated checker to scan upcoming deadlines in job applications and fire real-time warnings
@@ -1580,18 +1542,21 @@ export default function App() {
   if (!isLoggedIn) {
     return (
       <>
-        <LoginScreen onLoginSuccess={(profile, isDemo) => {
+        <LoginScreen onLoginSuccess={(profile) => {
           if (profile) {
             setUserProfile(profile);
           }
-          if (isDemo) {
-            localStorage.setItem("track_hire_is_demo", "true");
-          }
           setIsLoggedIn(true);
-          localStorage.setItem("track_hire_user_logged", "true");
+          localStorage.setItem("placofy_user_logged", "true");
+          const hasName = Boolean(profile?.name?.trim());
+          if (!hasName) {
+            setIsProfileEditOpen(true);
+          }
           setModalAlert({
             title: "Access Granted",
-            message: "Welcome to Track Hire! You are logged in.",
+            message: hasName
+              ? "Welcome to Placofy! You are logged in."
+              : "Welcome to Placofy! Add your name to finish setting up your profile.",
             type: "success"
           });
         }} />
@@ -1647,7 +1612,7 @@ export default function App() {
                   className="text-xl font-extrabold tracking-tight bg-gradient-to-r from-slate-900 to-slate-700 dark:from-white dark:to-slate-200 bg-clip-text text-transparent hover:from-indigo-600 hover:to-violet-500 transition-all duration-300 cursor-pointer" 
                   id="app-title"
                 >
-                  Track Hire
+                  Placofy
                 </h1>
                 <div className="flex items-center gap-1.5 text-[10px] text-slate-500 dark:text-slate-400 font-bold font-sans mt-0.5 select-none bg-slate-50/80 dark:bg-slate-800 border border-slate-200/50 dark:border-slate-700/60 rounded-full px-2 py-0.5 shadow-3xs hover:bg-white hover:dark:bg-slate-850 hover:border-slate-300 dark:hover:border-slate-600 transition-all cursor-default">
                   <Clock className="h-3.5 w-3.5 text-indigo-500" />
@@ -1704,7 +1669,7 @@ export default function App() {
                     </div>
                     <div className="text-left hidden sm:block select-none max-w-[100px]">
                       <p className="text-[11px] font-bold text-slate-800 dark:text-slate-200 leading-tight truncate">
-                        {userProfile.name || "Rajesh Kumar"}
+                        {userProfile.name || "User"}
                       </p>
                       <p className="text-[9px] text-slate-400 dark:text-slate-500 leading-none">
                         Workspace
@@ -1917,7 +1882,7 @@ export default function App() {
                             const dataStr = "data:text/csv;charset=utf-8," + encodeURIComponent(csvContent);
                             const downloadAnchor = document.createElement('a');
                             downloadAnchor.setAttribute("href", dataStr);
-                            downloadAnchor.setAttribute("download", `track_hire_applications_${TODAY_DATE}.csv`);
+                            downloadAnchor.setAttribute("download", `placofy_applications_${TODAY_DATE}.csv`);
                             document.body.appendChild(downloadAnchor);
                             downloadAnchor.click();
                             downloadAnchor.remove();
@@ -1934,7 +1899,7 @@ export default function App() {
                             setIsMoreMenuOpen(false);
                             const formatToText = (apps: any[]): string => {
                               let txt = `==================================================\n`;
-                              txt += `       TRACK HIRE - MY JOB APPLICATIONS SUMMARY    \n`;
+                              txt += `       PLACOFY - MY JOB APPLICATIONS SUMMARY    \n`;
                               txt += `       Generated on: ${new Date().toLocaleDateString()}\n`;
                               txt += `==================================================\n\n`;
                               apps.forEach((app, idx) => {
@@ -1957,7 +1922,7 @@ export default function App() {
                             const dataStr = "data:text/plain;charset=utf-8," + encodeURIComponent(textContent);
                             const downloadAnchor = document.createElement('a');
                             downloadAnchor.setAttribute("href", dataStr);
-                            downloadAnchor.setAttribute("download", `track_hire_applications_${TODAY_DATE}.txt`);
+                            downloadAnchor.setAttribute("download", `placofy_applications_${TODAY_DATE}.txt`);
                             document.body.appendChild(downloadAnchor);
                             downloadAnchor.click();
                             downloadAnchor.remove();
@@ -1986,7 +1951,7 @@ export default function App() {
                               `👥 Interviewing: ${countByStatus.Interview}\n` +
                               `🎉 Offers Received: ${countByStatus.Offer}\n` +
                               `❌ Rejected/Closed: ${countByStatus.Rejected}\n\n` +
-                              `Generated via TrackHire! Keep pushing forward! 💪🚀`;
+                              `Generated via Placofy! Keep pushing forward! 💪🚀`;
                             navigator.clipboard.writeText(statsText);
                           }}
                           className="w-full text-left px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 transition-colors flex items-center gap-2 cursor-pointer"
@@ -2032,18 +1997,6 @@ export default function App() {
                           type="button"
                           onClick={() => {
                             setIsMoreMenuOpen(false);
-                            setApplications(SEED_APPLICATIONS);
-                          }}
-                          className="w-full text-left px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 transition-colors flex items-center gap-2 cursor-pointer"
-                        >
-                          <RefreshCw className="h-3.5 w-3.5 text-indigo-500" />
-                          Reset Seed Data
-                        </button>
-                        
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setIsMoreMenuOpen(false);
                             setApplications([]);
                           }}
                           className="w-full text-left px-3 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 transition-colors flex items-center gap-2 cursor-pointer"
@@ -2068,8 +2021,7 @@ export default function App() {
                             } catch (e) {
                               console.error("Firebase signOut failed:", e);
                             }
-                            localStorage.removeItem("track_hire_user_logged");
-                            localStorage.removeItem("track_hire_is_demo");
+                            localStorage.removeItem("placofy_user_logged");
                             setIsLoggedIn(false);
                           }}
                           className="w-full text-left px-3 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 hover:text-rose-700 transition-colors flex items-center gap-2 cursor-pointer rounded-b-xl"
@@ -2865,7 +2817,7 @@ export default function App() {
                           Key Skills
                         </span>
                         <div className="flex flex-wrap gap-1.5">
-                          {userProfile.skills.split(",").map((s: string, idx: number) => (
+                          {(userProfile.skills || "").split(",").filter(Boolean).map((s: string, idx: number) => (
                             <span 
                               key={idx} 
                               className="bg-slate-50 dark:bg-slate-950/40 text-slate-700 dark:text-slate-300 px-2.5 py-1 rounded-lg text-[10px] font-semibold border border-slate-200/50 dark:border-slate-800/60"
@@ -4454,20 +4406,35 @@ export default function App() {
 
               {/* Scrollable Form Content */}
               <form
-                onSubmit={(e) => {
+                onSubmit={async (e) => {
                   e.preventDefault();
                   const formData = new FormData(e.currentTarget);
                   const updated = {
-                    name: formData.get("profile-name") as string,
-                    email: formData.get("profile-email") as string,
-                    title: formData.get("profile-title") as string,
-                    location: formData.get("profile-location") as string,
-                    targetRole: formData.get("profile-target") as string,
-                    skills: formData.get("profile-skills") as string,
-                    linkedinUrl: formData.get("profile-linkedin") as string,
-                    bio: formData.get("profile-bio") as string,
+                    name: (formData.get("profile-name") as string).trim(),
+                    email: (formData.get("profile-email") as string).trim(),
+                    title: (formData.get("profile-title") as string).trim(),
+                    location: (formData.get("profile-location") as string).trim(),
+                    targetRole: (formData.get("profile-target") as string).trim(),
+                    skills: (formData.get("profile-skills") as string).trim(),
+                    linkedinUrl: (formData.get("profile-linkedin") as string).trim(),
+                    bio: (formData.get("profile-bio") as string).trim(),
                   };
+                  if (!updated.name) {
+                    setModalAlert({
+                      title: "Name Required",
+                      message: "Please enter your full name before saving.",
+                      type: "error"
+                    });
+                    return;
+                  }
                   setUserProfile(updated);
+                  if (auth.currentUser && updated.name !== auth.currentUser.displayName) {
+                    try {
+                      await updateProfile(auth.currentUser, { displayName: updated.name });
+                    } catch (err) {
+                      console.error("Failed to sync display name:", err);
+                    }
+                  }
                   setIsProfileEditOpen(false);
                   setModalAlert({
                     title: "Profile Saved Successfully",
@@ -4487,6 +4454,7 @@ export default function App() {
                       name="profile-name"
                       required
                       defaultValue={userProfile.name}
+                      placeholder="Your full name"
                       className="w-full text-xs bg-slate-50/50 hover:bg-slate-50 focus:bg-white dark:bg-slate-950 dark:hover:bg-slate-950/80 dark:focus:bg-slate-950 text-slate-800 dark:text-slate-200 rounded-xl border border-slate-200 dark:border-slate-800 px-3.5 py-2 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all font-medium"
                     />
                   </div>
@@ -4498,8 +4466,8 @@ export default function App() {
                     <input 
                       type="email"
                       name="profile-email"
-                      required
                       defaultValue={userProfile.email}
+                      placeholder="you@example.com"
                       className="w-full text-xs bg-slate-50/50 hover:bg-slate-50 focus:bg-white dark:bg-slate-950 dark:hover:bg-slate-950/80 dark:focus:bg-slate-950 text-slate-800 dark:text-slate-200 rounded-xl border border-slate-200 dark:border-slate-800 px-3.5 py-2 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all font-medium"
                     />
                   </div>
@@ -4513,8 +4481,8 @@ export default function App() {
                     <input 
                       type="text"
                       name="profile-title"
-                      required
                       defaultValue={userProfile.title}
+                      placeholder="e.g. Software Engineer"
                       className="w-full text-xs bg-slate-50/50 hover:bg-slate-50 focus:bg-white dark:bg-slate-950 dark:hover:bg-slate-950/80 dark:focus:bg-slate-950 text-slate-800 dark:text-slate-200 rounded-xl border border-slate-200 dark:border-slate-800 px-3.5 py-2 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all font-medium"
                     />
                   </div>
@@ -4526,8 +4494,8 @@ export default function App() {
                     <input 
                       type="text"
                       name="profile-target"
-                      required
                       defaultValue={userProfile.targetRole}
+                      placeholder="e.g. Full Stack Developer"
                       className="w-full text-xs bg-slate-50/50 hover:bg-slate-50 focus:bg-white dark:bg-slate-950 dark:hover:bg-slate-950/80 dark:focus:bg-slate-950 text-slate-800 dark:text-slate-200 rounded-xl border border-slate-200 dark:border-slate-800 px-3.5 py-2 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all font-medium"
                     />
                   </div>
@@ -4541,8 +4509,8 @@ export default function App() {
                     <input 
                       type="text"
                       name="profile-location"
-                      required
                       defaultValue={userProfile.location}
+                      placeholder="City, Country"
                       className="w-full text-xs bg-slate-50/50 hover:bg-slate-50 focus:bg-white dark:bg-slate-950 dark:hover:bg-slate-950/80 dark:focus:bg-slate-950 text-slate-800 dark:text-slate-200 rounded-xl border border-slate-200 dark:border-slate-800 px-3.5 py-2 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all font-medium"
                     />
                   </div>
@@ -4555,6 +4523,7 @@ export default function App() {
                       type="url"
                       name="profile-linkedin"
                       defaultValue={userProfile.linkedinUrl}
+                      placeholder="https://linkedin.com/in/you"
                       className="w-full text-xs bg-slate-50/50 hover:bg-slate-50 focus:bg-white dark:bg-slate-950 dark:hover:bg-slate-950/80 dark:focus:bg-slate-950 text-slate-800 dark:text-slate-200 rounded-xl border border-slate-200 dark:border-slate-800 px-3.5 py-2 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all font-medium"
                     />
                   </div>
@@ -4567,8 +4536,8 @@ export default function App() {
                   <input 
                     type="text"
                     name="profile-skills"
-                    required
                     defaultValue={userProfile.skills}
+                    placeholder="React, TypeScript, Node.js"
                     className="w-full text-xs bg-slate-50/50 hover:bg-slate-50 focus:bg-white dark:bg-slate-950 dark:hover:bg-slate-950/80 dark:focus:bg-slate-950 text-slate-800 dark:text-slate-200 rounded-xl border border-slate-200 dark:border-slate-800 px-3.5 py-2 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all font-medium"
                   />
                 </div>
@@ -4579,9 +4548,9 @@ export default function App() {
                   </label>
                   <textarea 
                     name="profile-bio"
-                    required
                     rows={4}
                     defaultValue={userProfile.bio}
+                    placeholder="A short professional summary"
                     className="w-full text-xs bg-slate-50/50 hover:bg-slate-50 focus:bg-white dark:bg-slate-950 dark:hover:bg-slate-950/80 dark:focus:bg-slate-950 text-slate-800 dark:text-slate-200 rounded-xl border border-slate-200 dark:border-slate-800 px-3.5 py-2 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all font-medium resize-none leading-relaxed"
                   />
                 </div>
@@ -4636,17 +4605,28 @@ export default function App() {
 }
 
 interface LoginScreenProps {
-  onLoginSuccess: (profile?: any, isDemo?: boolean) => void;
+  onLoginSuccess: (profile?: any) => void;
 }
 
 function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
   const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [name, setName] = useState("Rajesh Kumar");
-  const [title, setTitle] = useState("Senior Software Engineer");
+  const [name, setName] = useState("");
+  const [title, setTitle] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  const emptyProfile = {
+    name: "",
+    email: "",
+    title: "",
+    location: "",
+    targetRole: "",
+    skills: "",
+    linkedinUrl: "",
+    bio: ""
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -4664,14 +4644,10 @@ function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
         await signInWithEmailAndPassword(auth, email, password);
       }
       const finalProfile = {
-        name: isSignUp ? name : (auth.currentUser?.displayName || "Rajesh Kumar"),
+        ...emptyProfile,
+        name: isSignUp ? name : (auth.currentUser?.displayName || ""),
         email: email,
-        title: isSignUp ? title : "Senior Software Engineer",
-        location: "Vadodara, Gujarat, India",
-        targetRole: "Full Stack Developer",
-        skills: "React, Node.js, TypeScript, Python, Tailwind CSS, PostgreSQL, REST APIs",
-        linkedinUrl: "https://linkedin.com/in/rajesh-kumar-dev",
-        bio: "Passionate developer focusing on building responsive and performant web applications."
+        title: isSignUp ? title : "",
       };
       onLoginSuccess(finalProfile);
     } catch (err: any) {
@@ -4689,14 +4665,9 @@ function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
       const finalProfile = {
-        name: user.displayName || "Google User",
+        ...emptyProfile,
+        name: user.displayName || "",
         email: user.email || "",
-        title: "Senior Software Engineer",
-        location: "Vadodara, Gujarat, India",
-        targetRole: "Full Stack Developer",
-        skills: "React, Node.js, TypeScript, Python, Tailwind CSS, PostgreSQL, REST APIs",
-        linkedinUrl: "https://linkedin.com/in/rajesh-kumar-dev",
-        bio: "Passionate developer focusing on building responsive and performant web applications."
       };
       onLoginSuccess(finalProfile);
     } catch (err: any) {
@@ -4704,20 +4675,6 @@ function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleQuickDemoLogin = () => {
-    const defaultProfile = {
-      name: "Rajesh Kumar",
-      email: "paruluniversity302@gmail.com",
-      title: "Senior Software Engineer",
-      location: "Vadodara, Gujarat, India",
-      targetRole: "Full Stack Developer",
-      skills: "React, Node.js, TypeScript, Python, Tailwind CSS, PostgreSQL, REST APIs",
-      linkedinUrl: "https://linkedin.com/in/rajesh-kumar-dev",
-      bio: "Passionate developer focusing on building responsive and performant web applications."
-    };
-    onLoginSuccess(defaultProfile, true);
   };
 
   return (
@@ -4728,7 +4685,7 @@ function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
             <Briefcase className="h-6 w-6 text-white" />
           </div>
           <h2 className="text-2xl font-extrabold tracking-tight text-slate-950 font-display">
-            {isSignUp ? "Create your account" : "Sign in to Track Hire"}
+            {isSignUp ? "Create your account" : "Sign in to Placofy"}
           </h2>
           <p className="mt-2 text-xs text-slate-500 max-w-xs mx-auto leading-relaxed">
             Manage your job applications, optimize ATS keywords, track interview preparations, and draft tailored outreach campaigns.
@@ -4754,7 +4711,7 @@ function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="e.g. Rajesh Kumar"
+                  placeholder="Your full name"
                   className="w-full text-xs bg-slate-50/50 hover:bg-slate-50 focus:bg-white text-slate-800 rounded-xl border border-slate-200 px-3.5 py-2.5 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all font-medium"
                 />
               </div>
@@ -4768,7 +4725,7 @@ function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
                   required
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  placeholder="e.g. Senior Software Engineer"
+                  placeholder="e.g. Software Engineer"
                   className="w-full text-xs bg-slate-50/50 hover:bg-slate-50 focus:bg-white text-slate-800 rounded-xl border border-slate-200 px-3.5 py-2.5 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all font-medium"
                 />
               </div>
@@ -4784,26 +4741,15 @@ function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="paruluniversity302@gmail.com"
+              placeholder="you@example.com"
               className="w-full text-xs bg-slate-50/50 hover:bg-slate-50 focus:bg-white text-slate-800 rounded-xl border border-slate-200 px-3.5 py-2.5 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all font-medium"
             />
           </div>
 
           <div>
-            <div className="flex items-center justify-between mb-1">
-              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                Password
-              </label>
-              {!isSignUp && (
-                <button
-                  type="button"
-                  onClick={() => alert("Demo Mode: any password is accepted. Simply click Sign In!")}
-                  className="text-[10px] font-semibold text-indigo-600 hover:underline cursor-pointer"
-                >
-                  Forgot password?
-                </button>
-              )}
-            </div>
+            <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+              Password
+            </label>
             <input
               type="password"
               required
@@ -4858,24 +4804,6 @@ function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
             />
           </svg>
           <span>Sign In with Google</span>
-        </button>
-
-        <div className="relative my-6">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-slate-200" />
-          </div>
-          <div className="relative flex justify-center text-[10px] uppercase font-bold">
-            <span className="bg-white px-3 text-slate-400">Or Demo Quick Access</span>
-          </div>
-        </div>
-
-        <button
-          type="button"
-          onClick={handleQuickDemoLogin}
-          className="w-full px-4 py-2.5 text-xs font-bold text-indigo-700 bg-indigo-50 border border-indigo-100 hover:bg-indigo-100/70 hover:border-indigo-200 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer transform active:scale-95"
-        >
-          <Sparkles className="h-4 w-4 text-indigo-600 animate-pulse" />
-          <span>One-Click Quick Demo Login</span>
         </button>
 
         <div className="text-center pt-2">

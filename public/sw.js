@@ -1,4 +1,4 @@
-const CACHE_NAME = 'trackhire-pwa-v1';
+const CACHE_NAME = 'placofy-pwa-v1';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
