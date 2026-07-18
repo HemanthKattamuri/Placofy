@@ -1598,10 +1598,10 @@ export default function App() {
                   setViewMode("kanban");
                   window.scrollTo({ top: 0, behavior: "smooth" });
                 }}
-                className="w-9 h-9 bg-gradient-to-tr from-indigo-600 to-violet-500 rounded-xl flex items-center justify-center shadow-md shadow-indigo-100 dark:shadow-none transition-all duration-300 hover:rotate-6 hover:scale-110 cursor-pointer"
+                className="w-9 h-9 rounded-xl overflow-hidden shadow-md shadow-indigo-100 dark:shadow-none transition-all duration-300 hover:rotate-6 hover:scale-110 cursor-pointer bg-white border border-slate-200/60 dark:border-slate-700"
                 title="Go to Kanban Board"
               >
-                <Briefcase className="w-5 h-5 text-white" />
+                <img src="/icon-192.png" alt="Placofy" className="w-full h-full object-cover" />
               </div>
               <div>
                 <h1 
@@ -4662,6 +4662,7 @@ function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
     setIsLoading(true);
     try {
       const provider = new GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: "select_account" });
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
       const finalProfile = {
@@ -4671,7 +4672,18 @@ function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
       };
       onLoginSuccess(finalProfile);
     } catch (err: any) {
-      setError(err.message || "Google Sign-In failed.");
+      const code = err?.code as string | undefined;
+      if (code === "auth/unauthorized-domain") {
+        setError(
+          `This domain is not authorized in Firebase. Add "${window.location.hostname}" under Authentication → Settings → Authorized domains in the placofy-e4bc3 project.`
+        );
+      } else if (code === "auth/popup-closed-by-user") {
+        setError("Google sign-in was cancelled.");
+      } else if (code === "auth/popup-blocked") {
+        setError("Pop-up was blocked. Allow pop-ups for this site and try again.");
+      } else {
+        setError(err?.message || "Google Sign-In failed.");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -4681,8 +4693,8 @@ function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
     <div className="min-h-screen bg-slate-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 font-sans">
       <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-3xl border border-slate-200 shadow-md">
         <div className="text-center">
-          <div className="mx-auto h-12 w-12 bg-gradient-to-tr from-indigo-600 to-violet-500 rounded-2xl flex items-center justify-center shadow-md shadow-indigo-100 mb-4">
-            <Briefcase className="h-6 w-6 text-white" />
+          <div className="mx-auto h-14 w-14 rounded-2xl overflow-hidden shadow-md shadow-indigo-100 mb-4 bg-white border border-slate-200">
+            <img src="/icon-192.png" alt="Placofy" className="w-full h-full object-cover" />
           </div>
           <h2 className="text-2xl font-extrabold tracking-tight text-slate-950 font-display">
             {isSignUp ? "Create your account" : "Sign in to Placofy"}

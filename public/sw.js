@@ -1,11 +1,14 @@
-const CACHE_NAME = 'placofy-pwa-v1';
+const CACHE_NAME = 'placofy-pwa-v2';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
   '/manifest.json',
-  '/icon.svg',
   '/icon-192.png',
-  '/icon-512.png'
+  '/icon-512.png',
+  '/icon-maskable-512.png',
+  '/apple-touch-icon.png',
+  '/favicon-32.png',
+  '/favicon-64.png'
 ];
 
 // Install Event: cache initial offline app shell
