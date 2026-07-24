@@ -621,6 +621,7 @@ function CareerNotesView({ userNotes, setUserNotes, setNotifications }: CareerNo
 
 
 export default function App() {
+  const [showLanding, setShowLanding] = useState(true);
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
 
   useEffect(() => {
@@ -1579,6 +1580,63 @@ export default function App() {
       setSortOrder("desc");
     }
   };
+
+  if (showLanding) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-900 text-white relative overflow-hidden">
+        <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))] opacity-20"></div>
+        
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="z-10 flex flex-col items-center text-center max-w-2xl px-4"
+        >
+          <div className="w-24 h-24 bg-white rounded-3xl p-1 mb-8 shadow-2xl shadow-indigo-500/20 rotate-3">
+            <img src="/icon-192.png" alt="Placofy Logo" className="w-full h-full rounded-2xl object-cover" />
+          </div>
+          
+          <h1 className="text-5xl sm:text-7xl font-extrabold tracking-tight mb-6 bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-white to-violet-400">
+            Get Placofy
+          </h1>
+          
+          <p className="text-lg sm:text-xl text-slate-300 mb-12 max-w-lg font-medium leading-relaxed">
+            The ultimate companion for your job search journey. Install the app to organize applications, optimize your resume, and track interviews seamlessly.
+          </p>
+
+          <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
+            {deferredPrompt ? (
+              <button
+                onClick={handleInstallClick}
+                className="group relative px-8 py-4 w-full sm:w-auto bg-white text-indigo-900 font-bold text-lg rounded-2xl overflow-hidden shadow-[0_0_40px_rgba(99,102,241,0.4)] hover:shadow-[0_0_60px_rgba(99,102,241,0.6)] transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-3"
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-indigo-100 to-violet-100 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                <Download className="h-6 w-6 relative z-10" />
+                <span className="relative z-10">Download App</span>
+              </button>
+            ) : (
+              <div className="px-8 py-4 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 text-white font-medium text-center">
+                <p className="flex items-center justify-center gap-2">
+                  <span className="relative flex h-3 w-3">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                  </span>
+                  App is already installed or not supported.
+                </p>
+                <p className="text-xs text-slate-400 mt-2">Open via your home screen or continue to the web version below.</p>
+              </div>
+            )}
+          </div>
+
+          <button 
+            onClick={() => setShowLanding(false)}
+            className="mt-12 text-sm font-semibold text-slate-400 hover:text-white transition-colors underline decoration-slate-600 underline-offset-4"
+          >
+            Continue to Web Version
+          </button>
+        </motion.div>
+      </div>
+    );
+  }
 
   if (!isLoggedIn) {
     return (
