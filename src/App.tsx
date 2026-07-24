@@ -1662,45 +1662,28 @@ export default function App() {
 
               <button
                 type="button"
-                onClick={async () => {
-                  try {
-                    const text = await navigator.clipboard.readText();
-                    if (!text || text.trim().length < 20) {
-                      setModalAlert({
-                        title: "No Text Found",
-                        message: "Please copy a job description to your clipboard first.",
-                        type: "info"
-                      });
-                      return;
-                    }
-                    handleGeminiExtract(text);
-                  } catch (err) {
-                    setModalAlert({
-                      title: "Clipboard Access Denied",
-                      message: "Please allow clipboard permissions or manually paste the job description into the Add Application form.",
-                      type: "error"
-                    });
-                  }
-                }}
+                onClick={() => setIsPasteOpen(true)}
                 className={`px-4 py-2 text-sm font-semibold rounded-xl border flex items-center justify-center gap-2 cursor-pointer shadow-xs w-full sm:w-auto transform active:scale-95 transition-all duration-200 hover:-translate-y-0.5 text-slate-700 bg-white border-slate-200 hover:bg-indigo-50/50 hover:text-indigo-600 hover:border-indigo-200`}
               >
                 <ClipboardPaste className="h-4 w-4" />
                 <span>Paste Job Description</span>
               </button>
 
-              <div className="flex items-center gap-2.5 w-full sm:w-auto">
-                <button
-                  type="button"
-                  id="btn-add-application"
-                  onClick={openNewApplicationModal}
-                  className="flex-1 sm:flex-initial px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 rounded-xl transition-all duration-200 shadow-sm hover:shadow-md hover:shadow-indigo-100 flex items-center justify-center gap-1.5 cursor-pointer min-h-[38px] transform active:scale-95 hover:-translate-y-0.5"
-                >
-                  <Plus className="h-4 w-4" />
-                  <span>Add Application</span>
-                </button>
+              <button
+                type="button"
+                id="btn-add-application"
+                onClick={openNewApplicationModal}
+                className="px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 rounded-xl transition-all duration-200 shadow-sm hover:shadow-md hover:shadow-indigo-100 flex items-center justify-center gap-1.5 cursor-pointer transform active:scale-95 hover:-translate-y-0.5"
+                title="Add Application"
+              >
+                <Plus className="h-4 w-4" />
+                <span>Add</span>
+              </button>
 
-                {/* Profile Icon Dropdown Container */}
-                <div className="relative shrink-0" id="three-dot-menu-container">
+              <div className="h-6 w-px bg-slate-200 dark:bg-slate-700 hidden sm:block mx-1"></div>
+
+              {/* Profile Icon Dropdown Container */}
+              <div className="relative shrink-0" id="three-dot-menu-container">
                   <button
                     type="button"
                     id="btn-more-options"
@@ -2172,7 +2155,6 @@ export default function App() {
                     </>
                   )}
                 </div>
-              </div>
             </div>
           </div>
         </div>
@@ -2254,57 +2236,6 @@ export default function App() {
                 </select>
               </div>
 
-              {/* View switcher toggle */}
-              <div className="flex flex-wrap rounded-xl bg-slate-100 p-1 border border-slate-200/50 shadow-sm gap-1" id="view-toggle">
-                <button
-                  type="button"
-                  id="toggle-kanban"
-                  onClick={() => setViewMode("kanban")}
-                  className={`flex items-center gap-2 rounded-lg px-4 py-1.5 text-sm font-medium transition-all cursor-pointer ${viewMode === "kanban"
-                    ? "bg-white text-indigo-600 shadow-sm"
-                    : "text-slate-500 hover:text-slate-900"
-                    }`}
-                >
-                  <Kanban className="h-4 w-4" />
-                  <span>Board</span>
-                </button>
-                <button
-                  type="button"
-                  id="toggle-table"
-                  onClick={() => setViewMode("table")}
-                  className={`flex items-center gap-2 rounded-lg px-4 py-1.5 text-sm font-medium transition-all cursor-pointer ${viewMode === "table"
-                    ? "bg-white text-indigo-600 shadow-sm"
-                    : "text-slate-500 hover:text-slate-900"
-                    }`}
-                >
-                  <TableIcon className="h-4 w-4" />
-                  <span>Table</span>
-                </button>
-                <button
-                  type="button"
-                  id="toggle-resumes"
-                  onClick={() => setViewMode("resumes")}
-                  className={`flex items-center gap-2 rounded-lg px-4 py-1.5 text-sm font-medium transition-all cursor-pointer ${viewMode === "resumes"
-                    ? "bg-white text-indigo-600 shadow-sm"
-                    : "text-slate-500 hover:text-slate-900"
-                    }`}
-                >
-                  <FileText className="h-4 w-4" />
-                  <span>Resumes</span>
-                </button>
-                <button
-                  type="button"
-                  id="toggle-notes"
-                  onClick={() => setViewMode("notes")}
-                  className={`flex items-center gap-2 rounded-lg px-4 py-1.5 text-sm font-medium transition-all cursor-pointer ${viewMode === "notes"
-                    ? "bg-white text-indigo-600 shadow-sm"
-                    : "text-slate-500 hover:text-slate-900"
-                    }`}
-                >
-                  <Notebook className="h-4 w-4" />
-                  <span>Notes &amp; Wishlist</span>
-                </button>
-              </div>
             </div>
           </div>
         )}
@@ -4066,7 +3997,7 @@ export default function App() {
       </main>
 
       {/* Elegant Highlighted Footer with Hemanth Kattamuri */}
-      <footer className="mt-auto py-8 border-t border-slate-200/60 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-900/30 shrink-0 w-full">
+      <footer className="mt-auto py-8 mb-20 border-t border-slate-200/60 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-900/30 shrink-0 w-full">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-between gap-4">
             {/* User Highlighted Name with Verified badge */}
@@ -4080,6 +4011,136 @@ export default function App() {
           </div>
         </div>
       </footer>
+
+      {/* Fixed Bottom Navigation Bar */}
+      <div className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border-t border-slate-200/80 dark:border-slate-800 shadow-[0_-4px_10px_rgba(0,0,0,0.02)] dark:shadow-[0_-4px_10px_rgba(0,0,0,0.2)] safe-area-pb">
+        <div className="flex items-center justify-around p-2 max-w-md mx-auto">
+          <button
+            type="button"
+            onClick={() => {
+              setViewMode("kanban");
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
+            className={`flex flex-col items-center justify-center w-16 h-12 rounded-xl transition-all cursor-pointer ${viewMode === "kanban" ? "text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20" : "text-slate-500 hover:text-indigo-500 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-800"}`}
+          >
+            <Kanban className="h-5 w-5 mb-0.5" />
+            <span className="text-[10px] font-bold">Board</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setViewMode("table");
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
+            className={`flex flex-col items-center justify-center w-16 h-12 rounded-xl transition-all cursor-pointer ${viewMode === "table" ? "text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20" : "text-slate-500 hover:text-indigo-500 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-800"}`}
+          >
+            <TableIcon className="h-5 w-5 mb-0.5" />
+            <span className="text-[10px] font-bold">Table</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setViewMode("resumes");
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
+            className={`flex flex-col items-center justify-center w-16 h-12 rounded-xl transition-all cursor-pointer ${viewMode === "resumes" ? "text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20" : "text-slate-500 hover:text-indigo-500 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-800"}`}
+          >
+            <FileText className="h-5 w-5 mb-0.5" />
+            <span className="text-[10px] font-bold">Resumes</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setViewMode("notes");
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
+            className={`flex flex-col items-center justify-center w-16 h-12 rounded-xl transition-all cursor-pointer ${viewMode === "notes" ? "text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20" : "text-slate-500 hover:text-indigo-500 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-800"}`}
+          >
+            <Notebook className="h-5 w-5 mb-0.5" />
+            <span className="text-[10px] font-bold">Wishlist</span>
+          </button>
+        </div>
+      </div>
+
+      {/* MODAL 0: PASTE JOB DESCRIPTION */}
+      <AnimatePresence>
+        {isPasteOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4" id="modal-paste">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsPasteOpen(false)}
+              className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              className="relative w-full max-w-lg bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden flex flex-col border border-slate-200/50 dark:border-slate-700/50"
+            >
+              <div className="flex items-center justify-between p-6 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-850">
+                <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+                  <ClipboardPaste className="h-5 w-5 text-indigo-500" />
+                  Paste Job Description
+                </h3>
+                <button
+                  type="button"
+                  onClick={() => setIsPasteOpen(false)}
+                  className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full transition-colors cursor-pointer"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              <div className="p-6">
+                <textarea
+                  value={pasteText}
+                  onChange={(e) => setPasteText(e.target.value)}
+                  placeholder="Paste the target job description details here... We'll extract the Role, Company, Location, and Requirements automatically."
+                  rows={8}
+                  className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-3 text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 leading-relaxed font-sans"
+                />
+                
+                {extractionError && (
+                  <div className="mt-3 text-xs font-semibold text-rose-600 bg-rose-50 dark:bg-rose-500/10 dark:text-rose-400 p-2 rounded-lg flex gap-1.5 items-center">
+                    <AlertTriangle className="h-4 w-4" />
+                    <span>{extractionError}</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="p-6 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-850 flex justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setIsPasteOpen(false)}
+                  className="px-5 py-2.5 text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  disabled={isExtracting}
+                  onClick={() => handleGeminiExtract()}
+                  className="px-5 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 rounded-xl shadow-sm hover:shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
+                >
+                  {isExtracting ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <span>Extracting Details...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="h-4 w-4" />
+                      <span>Extract &amp; Create Application</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* MODAL 1: ADD & EDIT APPLICATION FORM */}
       <AnimatePresence>
