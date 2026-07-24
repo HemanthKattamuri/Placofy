@@ -1671,17 +1671,6 @@ export default function App() {
                 <span>Paste Job Description</span>
               </button>
 
-              <button
-                type="button"
-                id="btn-add-application"
-                onClick={openNewApplicationModal}
-                className="px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 rounded-xl transition-all duration-200 shadow-sm hover:shadow-md hover:shadow-indigo-100 flex items-center justify-center gap-1.5 cursor-pointer transform active:scale-95 hover:-translate-y-0.5"
-                title="Add Application"
-              >
-                <Plus className="h-4 w-4" />
-                <span>Add</span>
-              </button>
-
               <div className="h-6 w-px bg-slate-200 dark:bg-slate-700 hidden sm:block mx-1"></div>
               {/* Profile Icon Dropdown Container */}
               <div className="relative shrink-0" id="three-dot-menu-container">
@@ -2164,7 +2153,7 @@ export default function App() {
       <main className="flex-grow flex-1 w-full mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Top Bar Banner: Dashboard Statistics */}
         {viewMode !== "ats" && (
-          <section className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 shrink-0" id="dashboard-stats-section">
+          <section className="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-4 shrink-0" id="dashboard-stats-section">
             {/* Stat Item 1 */}
             <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-sm aspect-square flex flex-col justify-center items-center text-center">
               <p className="text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-wide">Total Applications</p>
@@ -4038,6 +4027,16 @@ export default function App() {
             <TableIcon className="h-5 w-5 mb-0.5" />
             <span className="text-[10px] font-bold">Table</span>
           </button>
+          
+          <button
+            type="button"
+            onClick={openNewApplicationModal}
+            className="flex items-center justify-center w-14 h-14 bg-gradient-to-tr from-blue-500 to-indigo-600 text-white rounded-full shadow-lg shadow-blue-500/30 transform transition-all active:scale-95 hover:scale-105 hover:shadow-blue-500/50 mb-3 z-50 cursor-pointer"
+            title="Add Application"
+          >
+            <Plus className="h-7 w-7" />
+          </button>
+
           <button
             type="button"
             onClick={() => {
