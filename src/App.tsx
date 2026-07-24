@@ -11,6 +11,7 @@ import {
   Trash2,
   Edit,
   Calendar,
+  ClipboardPaste,
   DollarSign,
   IndianRupee,
   User,
@@ -929,7 +930,9 @@ export default function App() {
   }, [atsJobDescriptionText]);
 
   // Manual trigger to extract keywords from Job Description and run ATS assessment
-  const handleRunAtsAnalysis = async () => {
+  const handleRunAtsAnalysis = async (overrideJobText?: string) => {
+    const jobTextToUse = (typeof overrideJobText === 'string' ? overrideJobText : atsJobDescriptionText);
+
     if (!atsResumeText.trim()) {
       setModalAlert({
         title: "Resume File Required",
@@ -938,7 +941,7 @@ export default function App() {
       });
       return;
     }
-    if (!atsJobDescriptionText.trim()) {
+    if (!jobTextToUse.trim()) {
       setModalAlert({
         title: "Job Description Required",
         message: "Please paste a job description to extract keywords and analyze compatibility.",
@@ -953,7 +956,7 @@ export default function App() {
       const extractRes = await fetch("/api/extract", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: atsJobDescriptionText })
+        body: JSON.stringify({ text: jobTextToUse })
       });
       const extractedData = await extractRes.json();
 
@@ -978,7 +981,7 @@ export default function App() {
           company: prefCompanyName.trim() || targetCompany,
           role: targetRole,
           location: extractedData.location || "Remote",
-          notes: atsJobDescriptionText,
+          notes: jobTextToUse,
           keywords: keywords
         })
       });
@@ -1419,9 +1422,14 @@ export default function App() {
   };
 
   // Call Gemini extract API
-  const handleGeminiExtract = async () => {
-    if (!pasteText.trim()) {
-      setExtractionError("Please paste some job description or posting text first.");
+  const handleGeminiExtract = async (overrideText?: string) => {
+    const textToExtract = typeof overrideText === 'string' ? overrideText : pasteText;
+    if (!textToExtract.trim()) {
+      setModalAlert({
+        title: "No Job Description",
+        message: "Please paste a job description or posting text.",
+        type: "info"
+      });
       return;
     }
 
@@ -1432,7 +1440,7 @@ export default function App() {
       const response = await fetch("/api/extract", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: pasteText }),
+        body: JSON.stringify({ text: textToExtract }),
       });
 
       if (!response.ok) {
@@ -1650,6 +1658,34 @@ export default function App() {
               >
                 <Sparkles className="h-4 w-4" />
                 <span>Resume &amp; ATS Suite</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={async () => {
+                  try {
+                    const text = await navigator.clipboard.readText();
+                    if (!text || text.trim().length < 20) {
+                      setModalAlert({
+                        title: "No Text Found",
+                        message: "Please copy a job description to your clipboard first.",
+                        type: "info"
+                      });
+                      return;
+                    }
+                    handleGeminiExtract(text);
+                  } catch (err) {
+                    setModalAlert({
+                      title: "Clipboard Access Denied",
+                      message: "Please allow clipboard permissions or manually paste the job description into the Add Application form.",
+                      type: "error"
+                    });
+                  }
+                }}
+                className={`px-4 py-2 text-sm font-semibold rounded-xl border flex items-center justify-center gap-2 cursor-pointer shadow-xs w-full sm:w-auto transform active:scale-95 transition-all duration-200 hover:-translate-y-0.5 text-slate-700 bg-white border-slate-200 hover:bg-indigo-50/50 hover:text-indigo-600 hover:border-indigo-200`}
+              >
+                <ClipboardPaste className="h-4 w-4" />
+                <span>Paste Job Description</span>
               </button>
 
               <div className="flex items-center gap-2.5 w-full sm:w-auto">
@@ -3475,6 +3511,15 @@ export default function App() {
                     <textarea
                       value={atsJobDescriptionText}
                       onChange={(e) => setAtsJobDescriptionText(e.target.value)}
+                      onPaste={(e) => {
+                        const pastedText = e.clipboardData.getData('Text');
+                        if (pastedText && pastedText.trim().length > 50 && atsResumeText.trim()) {
+                          // Automatically run ATS analysis on paste if we have a resume
+                          setTimeout(() => {
+                            handleRunAtsAnalysis(pastedText);
+                          }, 100);
+                        }
+                      }}
                       placeholder="Paste the target job description details here..."
                       rows={8}
                       className="w-full rounded-xl border border-slate-200 bg-white p-3 text-xs text-slate-800 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400 leading-relaxed font-sans"
@@ -3485,7 +3530,7 @@ export default function App() {
                   <button
                     type="button"
                     disabled={isAnalyzingResume}
-                    onClick={handleRunAtsAnalysis}
+                    onClick={() => handleRunAtsAnalysis()}
                     className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 px-4 rounded-xl text-xs flex items-center justify-center gap-2 cursor-pointer shadow-sm disabled:bg-slate-100 disabled:text-slate-400 transition-all transform active:scale-98"
                   >
                     {isAnalyzingResume ? (
