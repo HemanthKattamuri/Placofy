@@ -97,7 +97,7 @@ export function getKeywordsForApp(app: JobApplication): string[] {
   }
   const roleLower = app.role.toLowerCase();
   const companyLower = app.company.toLowerCase();
-  
+
   if (roleLower.includes("frontend") || roleLower.includes("ui") || roleLower.includes("ux")) {
     return ["React", "JavaScript", "TypeScript", "Tailwind CSS", "HTML5", "CSS3", "Git", "Responsive Design", "Performance Optimization", "Figma"];
   }
@@ -181,7 +181,7 @@ export function getSuggestedWeakBullet(desc: string) {
 export function guessCompanyAndRole(desc: string) {
   let role = "Software Engineer";
   let company = "Hiring Team";
-  
+
   const roleRegexes = [
     /looking for a\s+([^.\n]{5,40})/i,
     /join our team as a\s+([^.\n]{5,40})/i,
@@ -192,16 +192,16 @@ export function guessCompanyAndRole(desc: string) {
     /Engineer/i,
     /Manager/i
   ];
-  
+
   for (const r of roleRegexes) {
     const match = desc.match(r);
     if (match) {
       role = match[1]?.trim() || match[0];
-      role = role.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"").trim();
+      role = role.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "").trim();
       break;
     }
   }
-  
+
   const companyRegexes = [
     /at\s+([A-Z][a-zA-Z0-9\s]{2,20})\b/,
     /join\s+([A-Z][a-zA-Z0-9\s]{2,20})\b/,
@@ -214,7 +214,7 @@ export function guessCompanyAndRole(desc: string) {
       break;
     }
   }
-  
+
   return { role, company };
 }
 
@@ -278,7 +278,7 @@ function CareerNotesView({ userNotes, setUserNotes, setNotifications }: CareerNo
   const [isCreatingNewNote, setIsCreatingNewNote] = useState(false);
   const [isEditingNote, setIsEditingNote] = useState(false);
   const [noteIdToDelete, setNoteIdToDelete] = useState<string | null>(null);
-  
+
   // Form states
   const [formTitle, setFormTitle] = useState("");
   const [formContent, setFormContent] = useState("");
@@ -297,8 +297,8 @@ function CareerNotesView({ userNotes, setUserNotes, setNotifications }: CareerNo
   }, [isCreatingNewNote, isEditingNote, activeNote]);
 
   const filteredNotes = userNotes.filter(note => {
-    const matchesSearch = note.title.toLowerCase().includes(noteSearch.toLowerCase()) || 
-                          note.content.toLowerCase().includes(noteSearch.toLowerCase());
+    const matchesSearch = note.title.toLowerCase().includes(noteSearch.toLowerCase()) ||
+      note.content.toLowerCase().includes(noteSearch.toLowerCase());
     return matchesSearch;
   });
 
@@ -513,14 +513,14 @@ function CareerNotesView({ userNotes, setUserNotes, setNotifications }: CareerNo
       <AnimatePresence>
         {(isCreatingNewNote || isEditingNote) && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/65 backdrop-blur-xs">
-            <div 
+            <div
               className="absolute inset-0 cursor-default"
               onClick={() => {
                 setIsCreatingNewNote(false);
                 setIsEditingNote(false);
               }}
             />
-            
+
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -670,9 +670,22 @@ export default function App() {
     return () => unsubscribe();
   }, []);
 
-  const [applications, setApplications] = useState<JobApplication[]>([]);
+  const [applications, setApplications] = useState<JobApplication[]>(() => {
+    const saved = localStorage.getItem("placofy_applications");
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) { }
+    }
+    return [];
+  });
+
+  useEffect(() => {
+    localStorage.setItem("placofy_applications", JSON.stringify(applications));
+  }, [applications]);
+
   const [viewMode, setViewMode] = useState<"kanban" | "table" | "ats" | "profile" | "resumes" | "notes">("kanban");
-  
+
   // Dynamic live system time
   const [systemTime, setSystemTime] = useState("");
 
@@ -703,7 +716,7 @@ export default function App() {
   const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false);
   const [isUploadingResume, setIsUploadingResume] = useState(false);
   const [profileDropdownTab, setProfileDropdownTab] = useState<"menu" | "notifications">("menu");
-  
+
   // Gemini Paste states
   const [pasteText, setPasteText] = useState("");
   const [isExtracting, setIsExtracting] = useState(false);
@@ -759,7 +772,7 @@ export default function App() {
     if (saved) {
       try {
         return JSON.parse(saved);
-      } catch (e) {}
+      } catch (e) { }
     }
     return [];
   });
@@ -783,7 +796,7 @@ export default function App() {
     if (saved) {
       try {
         return JSON.parse(saved);
-      } catch (e) {}
+      } catch (e) { }
     }
     return [
       {
@@ -806,7 +819,7 @@ export default function App() {
     if (saved) {
       try {
         return JSON.parse(saved);
-      } catch (e) {}
+      } catch (e) { }
     }
     return [
       {
@@ -908,7 +921,7 @@ export default function App() {
         "Responsible for developing software application features and attending team meetings.",
         ""
       ].includes(bulletToOptimize.trim());
-      
+
       if (isDefault) {
         setBulletToOptimize(suggested);
       }
@@ -989,7 +1002,7 @@ export default function App() {
       });
     } catch (err) {
       console.error("Resume analysis failed, falling back to local extractor:", err);
-      
+
       // Highly robust local matcher fallback
       const commonTechWords = [
         "React", "TypeScript", "JavaScript", "Tailwind CSS", "REST APIs", "Node.js", "Express",
@@ -1048,11 +1061,11 @@ export default function App() {
   // Edit & Draft state
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isEditMode, setIsEditMode] = useState(false);
-  
+
   // Custom alerts and confirmation states
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [modalAlert, setModalAlert] = useState<{ title: string; message: string; type?: "success" | "error" | "info" } | null>(null);
-  
+
   // Form values state
   const [formState, setFormState] = useState({
     company: "",
@@ -1094,7 +1107,7 @@ export default function App() {
     if (aiAtsResult) {
       const matched = [...(aiAtsResult.matched || [])];
       const missing = [...(aiAtsResult.missing || [])];
-      
+
       // If the candidate appends missing keywords to their resume, dynamically promote them!
       const resumeLower = atsResumeText.toLowerCase();
       for (let i = missing.length - 1; i >= 0; i--) {
@@ -1106,9 +1119,9 @@ export default function App() {
           missing.splice(i, 1);
         }
       }
-      
+
       const totalKeywords = matched.length + missing.length;
-      const score = totalKeywords > 0 
+      const score = totalKeywords > 0
         ? Math.round((matched.length / totalKeywords) * 100)
         : aiAtsResult.score;
 
@@ -1124,7 +1137,7 @@ export default function App() {
     if (atsJobDescriptionText.trim()) {
       targetKeywords = extractKeywordsLocally(atsJobDescriptionText);
     }
-    
+
     if (targetKeywords.length === 0) {
       targetKeywords = ["React", "TypeScript", "Tailwind CSS", "REST APIs", "Git", "Webpack", "Responsive Design"];
     }
@@ -1143,7 +1156,7 @@ export default function App() {
       }
     });
 
-    const score = targetKeywords.length > 0 
+    const score = targetKeywords.length > 0
       ? Math.round((matched.length / targetKeywords.length) * 100)
       : 0;
 
@@ -1321,10 +1334,10 @@ export default function App() {
       prev.map((app) =>
         app.id === id
           ? {
-              ...app,
-              status: newStatus,
-              statusChangedAt: new Date().toISOString(),
-            }
+            ...app,
+            status: newStatus,
+            statusChangedAt: new Date().toISOString(),
+          }
           : app
       )
     );
@@ -1593,7 +1606,7 @@ export default function App() {
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             {/* Logo and Name */}
             <div className="flex items-center gap-3">
-              <div 
+              <div
                 onClick={() => {
                   setViewMode("kanban");
                   window.scrollTo({ top: 0, behavior: "smooth" });
@@ -1604,12 +1617,12 @@ export default function App() {
                 <img src="/icon-192.png" alt="Placofy" className="w-full h-full object-cover" />
               </div>
               <div>
-                <h1 
+                <h1
                   onClick={() => {
                     setViewMode("kanban");
                     window.scrollTo({ top: 0, behavior: "smooth" });
                   }}
-                  className="text-xl font-extrabold tracking-tight bg-gradient-to-r from-slate-900 to-slate-700 dark:from-white dark:to-slate-200 bg-clip-text text-transparent hover:from-indigo-600 hover:to-violet-500 transition-all duration-300 cursor-pointer" 
+                  className="text-xl font-extrabold tracking-tight bg-gradient-to-r from-slate-900 to-slate-700 dark:from-white dark:to-slate-200 bg-clip-text text-transparent hover:from-indigo-600 hover:to-violet-500 transition-all duration-300 cursor-pointer"
                   id="app-title"
                 >
                   Placofy
@@ -1630,11 +1643,10 @@ export default function App() {
                   setViewMode("ats");
                   window.scrollTo({ top: 0, behavior: "smooth" });
                 }}
-                className={`px-4 py-2 text-sm font-semibold rounded-xl border flex items-center justify-center gap-2 cursor-pointer shadow-xs w-full sm:w-auto transform active:scale-95 transition-all duration-200 hover:-translate-y-0.5 ${
-                  viewMode === "ats"
-                    ? "text-white bg-gradient-to-r from-indigo-600 to-violet-600 border-transparent hover:from-indigo-500 hover:to-violet-500 hover:shadow-md hover:shadow-indigo-100"
-                    : "text-slate-700 bg-white border-slate-200 hover:bg-indigo-50/50 hover:text-indigo-600 hover:border-indigo-200"
-                }`}
+                className={`px-4 py-2 text-sm font-semibold rounded-xl border flex items-center justify-center gap-2 cursor-pointer shadow-xs w-full sm:w-auto transform active:scale-95 transition-all duration-200 hover:-translate-y-0.5 ${viewMode === "ats"
+                  ? "text-white bg-gradient-to-r from-indigo-600 to-violet-600 border-transparent hover:from-indigo-500 hover:to-violet-500 hover:shadow-md hover:shadow-indigo-100"
+                  : "text-slate-700 bg-white border-slate-200 hover:bg-indigo-50/50 hover:text-indigo-600 hover:border-indigo-200"
+                  }`}
               >
                 <Sparkles className="h-4 w-4" />
                 <span>Resume &amp; ATS Suite</span>
@@ -1681,12 +1693,12 @@ export default function App() {
                   {isMoreMenuOpen && (
                     <>
                       {/* Backdrop to close */}
-                      <div 
-                        className="fixed inset-0 z-40" 
+                      <div
+                        className="fixed inset-0 z-40"
                         onClick={() => setIsMoreMenuOpen(false)}
                       />
                       <div className="absolute right-0 mt-2 w-72 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-xl py-2 z-50 origin-top-right animate-in fade-in slide-in-from-top-2 duration-100 max-h-[480px] overflow-y-auto">
-                        
+
                         {profileDropdownTab === "menu" ? (
                           <>
                             {/* Profile Info Header Section */}
@@ -1697,7 +1709,7 @@ export default function App() {
                               <p className="font-bold text-xs text-slate-800 dark:text-white line-clamp-1">{userProfile.name}</p>
                               <p className="text-[10px] text-slate-400 dark:text-slate-400 line-clamp-1 font-semibold">{userProfile.title}</p>
                               <p className="text-[9px] text-slate-400 dark:text-slate-400 line-clamp-1 font-mono mt-0.5">{userProfile.email}</p>
-                              
+
                               <button
                                 type="button"
                                 onClick={() => {
@@ -1754,375 +1766,372 @@ export default function App() {
                               </span>
                             </div>
 
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setHideRejected(prev => !prev);
-                          }}
-                          className="w-full text-left px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-indigo-50/50 hover:text-indigo-900 transition-colors flex items-center justify-between cursor-pointer"
-                        >
-                          <div className="flex items-center gap-2">
-                            <EyeOff className="h-3.5 w-3.5 text-slate-400" />
-                            <span>Hide Rejected & Closed</span>
-                          </div>
-                          <div className={`h-2.5 w-2.5 rounded-full transition-all ${hideRejected ? 'bg-indigo-600 scale-110 shadow-[0_0_8px_rgba(79,70,229,0.5)]' : 'bg-slate-200'}`} />
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setShowRemoteOnly(prev => !prev);
-                          }}
-                          className="w-full text-left px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-indigo-50/50 hover:text-indigo-900 transition-colors flex items-center justify-between cursor-pointer"
-                        >
-                          <div className="flex items-center gap-2">
-                            <Laptop className="h-3.5 w-3.5 text-slate-400" />
-                            <span>Show Remote Only</span>
-                          </div>
-                          <div className={`h-2.5 w-2.5 rounded-full transition-all ${showRemoteOnly ? 'bg-indigo-600 scale-110 shadow-[0_0_8px_rgba(79,70,229,0.5)]' : 'bg-slate-200'}`} />
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setShowWithDeadlines(prev => !prev);
-                          }}
-                          className="w-full text-left px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-indigo-50/50 hover:text-indigo-900 transition-colors flex items-center justify-between cursor-pointer"
-                        >
-                          <div className="flex items-center gap-2">
-                            <Calendar className="h-3.5 w-3.5 text-slate-400" />
-                            <span>Show with Deadlines</span>
-                          </div>
-                          <div className={`h-2.5 w-2.5 rounded-full transition-all ${showWithDeadlines ? 'bg-indigo-600 scale-110 shadow-[0_0_8px_rgba(79,70,229,0.5)]' : 'bg-slate-200'}`} />
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setIsMoreMenuOpen(false);
-                            setHideRejected(false);
-                            setShowRemoteOnly(false);
-                            setShowWithDeadlines(false);
-                            setStatusFilter("");
-                          }}
-                          className="w-full text-left px-3 py-2 text-xs font-semibold text-indigo-600 hover:bg-indigo-50 transition-colors flex items-center gap-2 cursor-pointer"
-                        >
-                          <Filter className="h-3.5 w-3.5" />
-                          <span>Reset All Filters</span>
-                        </button>
-
-                        {/* Section: Custom Hubs */}
-                        <div className="px-3 py-1.5 border-b border-t border-slate-100 my-1">
-                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                            Career Navigation
-                          </span>
-                        </div>
-
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setViewMode("resumes");
-                            setIsMoreMenuOpen(false);
-                            window.scrollTo({ top: 0, behavior: "smooth" });
-                          }}
-                          className={`w-full text-left px-3 py-2 text-xs font-semibold transition-colors flex items-center gap-2 cursor-pointer ${
-                            viewMode === "resumes" ? "text-indigo-600 bg-indigo-50/70" : "text-slate-700 hover:bg-slate-50"
-                          }`}
-                        >
-                          <FileText className="h-3.5 w-3.5 text-indigo-500" />
-                          <span>My Resume Storage</span>
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setViewMode("notes");
-                            setIsMoreMenuOpen(false);
-                            window.scrollTo({ top: 0, behavior: "smooth" });
-                          }}
-                          className={`w-full text-left px-3 py-2 text-xs font-semibold transition-colors flex items-center gap-2 cursor-pointer ${
-                            viewMode === "notes" ? "text-indigo-600 bg-indigo-50/70" : "text-slate-700 hover:bg-slate-50"
-                          }`}
-                        >
-                          <Notebook className="h-3.5 w-3.5 text-indigo-500" />
-                          <span>Notes &amp; Wishlist Hub</span>
-                        </button>
-
-                        {/* Section 2: Quick Tools & Export */}
-                        <div className="px-3 py-1.5 border-b border-t border-slate-100 my-1">
-                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                            Quick Tools & Export
-                          </span>
-                        </div>
-
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setIsMoreMenuOpen(false);
-                            const formatToCSV = (apps: any[]): string => {
-                              const headers = ["Company", "Role", "Status", "Location", "Salary Range", "Date Applied", "Deadline", "Source", "URL", "Notes"];
-                              const rows = apps.map(app => [
-                                app.company,
-                                app.role,
-                                app.status,
-                                app.location || "",
-                                app.salaryRange || "",
-                                app.dateApplied || "",
-                                app.deadline || "",
-                                app.source + (app.customSource ? ` (${app.customSource})` : ""),
-                                app.url || "",
-                                (app.notes || "").replace(/"/g, '""')
-                              ]);
-                              return [
-                                headers.join(","),
-                                ...rows.map(row => row.map(val => `"${val}"`).join(","))
-                              ].join("\n");
-                            };
-                            const csvContent = formatToCSV(applications);
-                            const dataStr = "data:text/csv;charset=utf-8," + encodeURIComponent(csvContent);
-                            const downloadAnchor = document.createElement('a');
-                            downloadAnchor.setAttribute("href", dataStr);
-                            downloadAnchor.setAttribute("download", `placofy_applications_${TODAY_DATE}.csv`);
-                            document.body.appendChild(downloadAnchor);
-                            downloadAnchor.click();
-                            downloadAnchor.remove();
-                          }}
-                          className="w-full text-left px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 transition-colors flex items-center gap-2 cursor-pointer"
-                        >
-                          <FileText className="h-3.5 w-3.5 text-indigo-500" />
-                          Download CSV Sheet
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setIsMoreMenuOpen(false);
-                            const formatToText = (apps: any[]): string => {
-                              let txt = `==================================================\n`;
-                              txt += `       PLACOFY - MY JOB APPLICATIONS SUMMARY    \n`;
-                              txt += `       Generated on: ${new Date().toLocaleDateString()}\n`;
-                              txt += `==================================================\n\n`;
-                              apps.forEach((app, idx) => {
-                                txt += `[${idx + 1}] ${app.company} - ${app.role}\n`;
-                                txt += `--------------------------------------------------\n`;
-                                txt += `• Status: ${app.status}\n`;
-                                txt += `• Location: ${app.location || "N/A"}\n`;
-                                txt += `• Salary Range: ${app.salaryRange || "N/A"}\n`;
-                                txt += `• Date Applied: ${app.dateApplied || "N/A"}\n`;
-                                txt += `• Deadline: ${app.deadline || "N/A"}\n`;
-                                txt += `• Source: ${app.source}${app.customSource ? ` (${app.customSource})` : ""}\n`;
-                                txt += `• Job URL: ${app.url || "N/A"}\n`;
-                                txt += `• Notes: ${app.notes || "None"}\n\n`;
-                              });
-                              txt += `==================================================\n`;
-                              txt += `End of Export. Total Tracked: ${apps.length} applications.\n`;
-                              return txt;
-                            };
-                            const textContent = formatToText(applications);
-                            const dataStr = "data:text/plain;charset=utf-8," + encodeURIComponent(textContent);
-                            const downloadAnchor = document.createElement('a');
-                            downloadAnchor.setAttribute("href", dataStr);
-                            downloadAnchor.setAttribute("download", `placofy_applications_${TODAY_DATE}.txt`);
-                            document.body.appendChild(downloadAnchor);
-                            downloadAnchor.click();
-                            downloadAnchor.remove();
-                          }}
-                          className="w-full text-left px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 transition-colors flex items-center gap-2 cursor-pointer"
-                        >
-                          <FileText className="h-3.5 w-3.5 text-indigo-500" />
-                          Download TEXT File (.txt)
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setIsMoreMenuOpen(false);
-                            const countByStatus = {
-                              Wishlist: applications.filter(a => a.status === "Wishlist").length,
-                              Applied: applications.filter(a => a.status === "Applied").length,
-                              Interview: applications.filter(a => a.status === "Interview").length,
-                              Offer: applications.filter(a => a.status === "Offer").length,
-                              Rejected: applications.filter(a => a.status === "Rejected").length,
-                            };
-                            const statsText = `My Job Search Progress Update 📈\n\n` +
-                              `🎯 Total Tracked: ${applications.length}\n` +
-                              `⭐ Wishlist: ${countByStatus.Wishlist}\n` +
-                              `📝 Applied: ${countByStatus.Applied}\n` +
-                              `👥 Interviewing: ${countByStatus.Interview}\n` +
-                              `🎉 Offers Received: ${countByStatus.Offer}\n` +
-                              `❌ Rejected/Closed: ${countByStatus.Rejected}\n\n` +
-                              `Generated via Placofy! Keep pushing forward! 💪🚀`;
-                            navigator.clipboard.writeText(statsText);
-                          }}
-                          className="w-full text-left px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 transition-colors flex items-center gap-2 cursor-pointer"
-                        >
-                          <Share2 className="h-3.5 w-3.5 text-indigo-500" />
-                          Copy Progress Summary
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setIsMoreMenuOpen(false);
-                            setSortField("company");
-                            setSortOrder("asc");
-                          }}
-                          className="w-full text-left px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 transition-colors flex items-center gap-2 cursor-pointer"
-                        >
-                          <ArrowUpDown className="h-3.5 w-3.5 text-indigo-500" />
-                          Sort by Company (A-Z)
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setIsMoreMenuOpen(false);
-                            setSortField("dateApplied");
-                            setSortOrder("desc");
-                          }}
-                          className="w-full text-left px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 transition-colors flex items-center gap-2 cursor-pointer"
-                        >
-                          <ArrowUpDown className="h-3.5 w-3.5 text-indigo-500" />
-                          Sort by Recent Applied
-                        </button>
-
-                        {/* Section 3: Reset & Clear */}
-                        <div className="px-3 py-1.5 border-b border-t border-slate-100 my-1">
-                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                            System Actions
-                          </span>
-                        </div>
-
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setIsMoreMenuOpen(false);
-                            setApplications([]);
-                          }}
-                          className="w-full text-left px-3 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 transition-colors flex items-center gap-2 cursor-pointer"
-                        >
-                          <Trash2 className="h-3.5 w-3.5 text-rose-500" />
-                          Clear All Data
-                        </button>
-
-                        {/* Section 4: Account Actions */}
-                        <div className="px-3 py-1.5 border-b border-t border-slate-100 my-1">
-                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                            Account
-                          </span>
-                        </div>
-
-                        <button
-                          type="button"
-                          onClick={async () => {
-                            setIsMoreMenuOpen(false);
-                            try {
-                              await signOut(auth);
-                            } catch (e) {
-                              console.error("Firebase signOut failed:", e);
-                            }
-                            localStorage.removeItem("placofy_user_logged");
-                            setIsLoggedIn(false);
-                          }}
-                          className="w-full text-left px-3 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 hover:text-rose-700 transition-colors flex items-center gap-2 cursor-pointer rounded-b-xl"
-                        >
-                          <LogOut className="h-3.5 w-3.5 text-rose-500" />
-                          Sign Out of Workspace
-                        </button>
-                      </>
-                    ) : (
-                      <>
-                        {/* Notification Tab Content */}
-                        <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/40 rounded-t-2xl flex items-center justify-between">
-                          <button
-                            type="button"
-                            onClick={() => setProfileDropdownTab("menu")}
-                            className="text-[11px] font-bold text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400 flex items-center gap-1 cursor-pointer transition-colors"
-                          >
-                            <ChevronLeft className="h-3.5 w-3.5" />
-                            <span>Back</span>
-                          </button>
-                          <h3 className="font-bold text-xs text-slate-800 dark:text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
-                            <Bell className="h-3.5 w-3.5 text-indigo-500 animate-pulse" />
-                            Alerts
-                          </h3>
-                          <div className="flex gap-2">
                             <button
                               type="button"
                               onClick={() => {
-                                setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+                                setHideRejected(prev => !prev);
                               }}
-                              className="text-[9px] font-bold text-indigo-600 dark:text-indigo-400 hover:underline cursor-pointer"
+                              className="w-full text-left px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-indigo-50/50 hover:text-indigo-900 transition-colors flex items-center justify-between cursor-pointer"
                             >
-                              Read All
-                            </button>
-                            <span className="text-slate-300 dark:text-slate-600">|</span>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setNotifications([]);
-                              }}
-                              className="text-[9px] font-bold text-rose-500 hover:underline cursor-pointer"
-                            >
-                              Clear
-                            </button>
-                          </div>
-                        </div>
-
-                        <div className="divide-y divide-slate-100 dark:divide-slate-700 max-h-80 overflow-y-auto">
-                          {notifications.length === 0 ? (
-                            <div className="py-8 text-center text-slate-400 dark:text-slate-500 text-xs">
-                              <CheckCircle className="h-8 w-8 text-slate-200 dark:text-slate-700 mx-auto mb-2" />
-                              All caught up! No notifications.
-                            </div>
-                          ) : (
-                            notifications.map(notif => (
-                              <div 
-                                key={notif.id} 
-                                className={`p-3.5 flex gap-3 transition-colors hover:bg-slate-50 dark:hover:bg-slate-700/50 ${
-                                  !notif.isRead ? "bg-indigo-50/25 dark:bg-indigo-950/10" : ""
-                                }`}
-                              >
-                                <div className="mt-0.5 shrink-0">
-                                  {notif.type === "success" && <CheckCircle className="h-4.5 w-4.5 text-emerald-500" />}
-                                  {notif.type === "deadline" && <AlertTriangle className="h-4.5 w-4.5 text-rose-500 animate-bounce" />}
-                                  {notif.type === "info" && <Briefcase className="h-4.5 w-4.5 text-blue-500" />}
-                                </div>
-                                <div className="flex-1 space-y-0.5">
-                                  <div className="flex items-center justify-between gap-2">
-                                    <p className="text-xs font-bold text-slate-800 dark:text-slate-200">{notif.title}</p>
-                                    <span className="text-[9px] font-medium text-slate-400 font-mono shrink-0">{notif.time}</span>
-                                  </div>
-                                  <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-normal">{notif.message}</p>
-                                  <div className="flex gap-2.5 pt-1">
-                                    {!notif.isRead && (
-                                      <button
-                                        type="button"
-                                        onClick={() => {
-                                          setNotifications(prev => prev.map(n => n.id === notif.id ? { ...n, isRead: true } : n));
-                                        }}
-                                        className="text-[9px] font-bold text-indigo-600 dark:text-indigo-400 hover:underline"
-                                      >
-                                        Mark read
-                                      </button>
-                                    )}
-                                    <button
-                                      type="button"
-                                      onClick={() => {
-                                        setNotifications(prev => prev.filter(n => n.id !== notif.id));
-                                      }}
-                                      className="text-[9px] font-bold text-slate-400 dark:text-slate-500 hover:text-rose-500 hover:underline"
-                                    >
-                                      Dismiss
-                                    </button>
-                                  </div>
-                                </div>
+                              <div className="flex items-center gap-2">
+                                <EyeOff className="h-3.5 w-3.5 text-slate-400" />
+                                <span>Hide Rejected & Closed</span>
                               </div>
-                            ))
-                          )}
-                        </div>
-                      </>
-                    )}
+                              <div className={`h-2.5 w-2.5 rounded-full transition-all ${hideRejected ? 'bg-indigo-600 scale-110 shadow-[0_0_8px_rgba(79,70,229,0.5)]' : 'bg-slate-200'}`} />
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setShowRemoteOnly(prev => !prev);
+                              }}
+                              className="w-full text-left px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-indigo-50/50 hover:text-indigo-900 transition-colors flex items-center justify-between cursor-pointer"
+                            >
+                              <div className="flex items-center gap-2">
+                                <Laptop className="h-3.5 w-3.5 text-slate-400" />
+                                <span>Show Remote Only</span>
+                              </div>
+                              <div className={`h-2.5 w-2.5 rounded-full transition-all ${showRemoteOnly ? 'bg-indigo-600 scale-110 shadow-[0_0_8px_rgba(79,70,229,0.5)]' : 'bg-slate-200'}`} />
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setShowWithDeadlines(prev => !prev);
+                              }}
+                              className="w-full text-left px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-indigo-50/50 hover:text-indigo-900 transition-colors flex items-center justify-between cursor-pointer"
+                            >
+                              <div className="flex items-center gap-2">
+                                <Calendar className="h-3.5 w-3.5 text-slate-400" />
+                                <span>Show with Deadlines</span>
+                              </div>
+                              <div className={`h-2.5 w-2.5 rounded-full transition-all ${showWithDeadlines ? 'bg-indigo-600 scale-110 shadow-[0_0_8px_rgba(79,70,229,0.5)]' : 'bg-slate-200'}`} />
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setIsMoreMenuOpen(false);
+                                setHideRejected(false);
+                                setShowRemoteOnly(false);
+                                setShowWithDeadlines(false);
+                                setStatusFilter("");
+                              }}
+                              className="w-full text-left px-3 py-2 text-xs font-semibold text-indigo-600 hover:bg-indigo-50 transition-colors flex items-center gap-2 cursor-pointer"
+                            >
+                              <Filter className="h-3.5 w-3.5" />
+                              <span>Reset All Filters</span>
+                            </button>
+
+                            {/* Section: Custom Hubs */}
+                            <div className="px-3 py-1.5 border-b border-t border-slate-100 my-1">
+                              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                                Career Navigation
+                              </span>
+                            </div>
+
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setViewMode("resumes");
+                                setIsMoreMenuOpen(false);
+                                window.scrollTo({ top: 0, behavior: "smooth" });
+                              }}
+                              className={`w-full text-left px-3 py-2 text-xs font-semibold transition-colors flex items-center gap-2 cursor-pointer ${viewMode === "resumes" ? "text-indigo-600 bg-indigo-50/70" : "text-slate-700 hover:bg-slate-50"
+                                }`}
+                            >
+                              <FileText className="h-3.5 w-3.5 text-indigo-500" />
+                              <span>My Resume Storage</span>
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setViewMode("notes");
+                                setIsMoreMenuOpen(false);
+                                window.scrollTo({ top: 0, behavior: "smooth" });
+                              }}
+                              className={`w-full text-left px-3 py-2 text-xs font-semibold transition-colors flex items-center gap-2 cursor-pointer ${viewMode === "notes" ? "text-indigo-600 bg-indigo-50/70" : "text-slate-700 hover:bg-slate-50"
+                                }`}
+                            >
+                              <Notebook className="h-3.5 w-3.5 text-indigo-500" />
+                              <span>Notes &amp; Wishlist Hub</span>
+                            </button>
+
+                            {/* Section 2: Quick Tools & Export */}
+                            <div className="px-3 py-1.5 border-b border-t border-slate-100 my-1">
+                              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                                Quick Tools & Export
+                              </span>
+                            </div>
+
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setIsMoreMenuOpen(false);
+                                const formatToCSV = (apps: any[]): string => {
+                                  const headers = ["Company", "Role", "Status", "Location", "Salary Range", "Date Applied", "Deadline", "Source", "URL", "Notes"];
+                                  const rows = apps.map(app => [
+                                    app.company,
+                                    app.role,
+                                    app.status,
+                                    app.location || "",
+                                    app.salaryRange || "",
+                                    app.dateApplied || "",
+                                    app.deadline || "",
+                                    app.source + (app.customSource ? ` (${app.customSource})` : ""),
+                                    app.url || "",
+                                    (app.notes || "").replace(/"/g, '""')
+                                  ]);
+                                  return [
+                                    headers.join(","),
+                                    ...rows.map(row => row.map(val => `"${val}"`).join(","))
+                                  ].join("\n");
+                                };
+                                const csvContent = formatToCSV(applications);
+                                const dataStr = "data:text/csv;charset=utf-8," + encodeURIComponent(csvContent);
+                                const downloadAnchor = document.createElement('a');
+                                downloadAnchor.setAttribute("href", dataStr);
+                                downloadAnchor.setAttribute("download", `placofy_applications_${TODAY_DATE}.csv`);
+                                document.body.appendChild(downloadAnchor);
+                                downloadAnchor.click();
+                                downloadAnchor.remove();
+                              }}
+                              className="w-full text-left px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 transition-colors flex items-center gap-2 cursor-pointer"
+                            >
+                              <FileText className="h-3.5 w-3.5 text-indigo-500" />
+                              Download CSV Sheet
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setIsMoreMenuOpen(false);
+                                const formatToText = (apps: any[]): string => {
+                                  let txt = `==================================================\n`;
+                                  txt += `       PLACOFY - MY JOB APPLICATIONS SUMMARY    \n`;
+                                  txt += `       Generated on: ${new Date().toLocaleDateString()}\n`;
+                                  txt += `==================================================\n\n`;
+                                  apps.forEach((app, idx) => {
+                                    txt += `[${idx + 1}] ${app.company} - ${app.role}\n`;
+                                    txt += `--------------------------------------------------\n`;
+                                    txt += `• Status: ${app.status}\n`;
+                                    txt += `• Location: ${app.location || "N/A"}\n`;
+                                    txt += `• Salary Range: ${app.salaryRange || "N/A"}\n`;
+                                    txt += `• Date Applied: ${app.dateApplied || "N/A"}\n`;
+                                    txt += `• Deadline: ${app.deadline || "N/A"}\n`;
+                                    txt += `• Source: ${app.source}${app.customSource ? ` (${app.customSource})` : ""}\n`;
+                                    txt += `• Job URL: ${app.url || "N/A"}\n`;
+                                    txt += `• Notes: ${app.notes || "None"}\n\n`;
+                                  });
+                                  txt += `==================================================\n`;
+                                  txt += `End of Export. Total Tracked: ${apps.length} applications.\n`;
+                                  return txt;
+                                };
+                                const textContent = formatToText(applications);
+                                const dataStr = "data:text/plain;charset=utf-8," + encodeURIComponent(textContent);
+                                const downloadAnchor = document.createElement('a');
+                                downloadAnchor.setAttribute("href", dataStr);
+                                downloadAnchor.setAttribute("download", `placofy_applications_${TODAY_DATE}.txt`);
+                                document.body.appendChild(downloadAnchor);
+                                downloadAnchor.click();
+                                downloadAnchor.remove();
+                              }}
+                              className="w-full text-left px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 transition-colors flex items-center gap-2 cursor-pointer"
+                            >
+                              <FileText className="h-3.5 w-3.5 text-indigo-500" />
+                              Download TEXT File (.txt)
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setIsMoreMenuOpen(false);
+                                const countByStatus = {
+                                  Wishlist: applications.filter(a => a.status === "Wishlist").length,
+                                  Applied: applications.filter(a => a.status === "Applied").length,
+                                  Interview: applications.filter(a => a.status === "Interview").length,
+                                  Offer: applications.filter(a => a.status === "Offer").length,
+                                  Rejected: applications.filter(a => a.status === "Rejected").length,
+                                };
+                                const statsText = `My Job Search Progress Update 📈\n\n` +
+                                  `🎯 Total Tracked: ${applications.length}\n` +
+                                  `⭐ Wishlist: ${countByStatus.Wishlist}\n` +
+                                  `📝 Applied: ${countByStatus.Applied}\n` +
+                                  `👥 Interviewing: ${countByStatus.Interview}\n` +
+                                  `🎉 Offers Received: ${countByStatus.Offer}\n` +
+                                  `❌ Rejected/Closed: ${countByStatus.Rejected}\n\n` +
+                                  `Generated via Placofy! Keep pushing forward! 💪🚀`;
+                                navigator.clipboard.writeText(statsText);
+                              }}
+                              className="w-full text-left px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 transition-colors flex items-center gap-2 cursor-pointer"
+                            >
+                              <Share2 className="h-3.5 w-3.5 text-indigo-500" />
+                              Copy Progress Summary
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setIsMoreMenuOpen(false);
+                                setSortField("company");
+                                setSortOrder("asc");
+                              }}
+                              className="w-full text-left px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 transition-colors flex items-center gap-2 cursor-pointer"
+                            >
+                              <ArrowUpDown className="h-3.5 w-3.5 text-indigo-500" />
+                              Sort by Company (A-Z)
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setIsMoreMenuOpen(false);
+                                setSortField("dateApplied");
+                                setSortOrder("desc");
+                              }}
+                              className="w-full text-left px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 transition-colors flex items-center gap-2 cursor-pointer"
+                            >
+                              <ArrowUpDown className="h-3.5 w-3.5 text-indigo-500" />
+                              Sort by Recent Applied
+                            </button>
+
+                            {/* Section 3: Reset & Clear */}
+                            <div className="px-3 py-1.5 border-b border-t border-slate-100 my-1">
+                              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                                System Actions
+                              </span>
+                            </div>
+
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setIsMoreMenuOpen(false);
+                                setApplications([]);
+                              }}
+                              className="w-full text-left px-3 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 transition-colors flex items-center gap-2 cursor-pointer"
+                            >
+                              <Trash2 className="h-3.5 w-3.5 text-rose-500" />
+                              Clear All Data
+                            </button>
+
+                            {/* Section 4: Account Actions */}
+                            <div className="px-3 py-1.5 border-b border-t border-slate-100 my-1">
+                              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                                Account
+                              </span>
+                            </div>
+
+                            <button
+                              type="button"
+                              onClick={async () => {
+                                setIsMoreMenuOpen(false);
+                                try {
+                                  await signOut(auth);
+                                } catch (e) {
+                                  console.error("Firebase signOut failed:", e);
+                                }
+                                localStorage.removeItem("placofy_user_logged");
+                                setIsLoggedIn(false);
+                              }}
+                              className="w-full text-left px-3 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 hover:text-rose-700 transition-colors flex items-center gap-2 cursor-pointer rounded-b-xl"
+                            >
+                              <LogOut className="h-3.5 w-3.5 text-rose-500" />
+                              Sign Out of Workspace
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            {/* Notification Tab Content */}
+                            <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/40 rounded-t-2xl flex items-center justify-between">
+                              <button
+                                type="button"
+                                onClick={() => setProfileDropdownTab("menu")}
+                                className="text-[11px] font-bold text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400 flex items-center gap-1 cursor-pointer transition-colors"
+                              >
+                                <ChevronLeft className="h-3.5 w-3.5" />
+                                <span>Back</span>
+                              </button>
+                              <h3 className="font-bold text-xs text-slate-800 dark:text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
+                                <Bell className="h-3.5 w-3.5 text-indigo-500 animate-pulse" />
+                                Alerts
+                              </h3>
+                              <div className="flex gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+                                  }}
+                                  className="text-[9px] font-bold text-indigo-600 dark:text-indigo-400 hover:underline cursor-pointer"
+                                >
+                                  Read All
+                                </button>
+                                <span className="text-slate-300 dark:text-slate-600">|</span>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setNotifications([]);
+                                  }}
+                                  className="text-[9px] font-bold text-rose-500 hover:underline cursor-pointer"
+                                >
+                                  Clear
+                                </button>
+                              </div>
+                            </div>
+
+                            <div className="divide-y divide-slate-100 dark:divide-slate-700 max-h-80 overflow-y-auto">
+                              {notifications.length === 0 ? (
+                                <div className="py-8 text-center text-slate-400 dark:text-slate-500 text-xs">
+                                  <CheckCircle className="h-8 w-8 text-slate-200 dark:text-slate-700 mx-auto mb-2" />
+                                  All caught up! No notifications.
+                                </div>
+                              ) : (
+                                notifications.map(notif => (
+                                  <div
+                                    key={notif.id}
+                                    className={`p-3.5 flex gap-3 transition-colors hover:bg-slate-50 dark:hover:bg-slate-700/50 ${!notif.isRead ? "bg-indigo-50/25 dark:bg-indigo-950/10" : ""
+                                      }`}
+                                  >
+                                    <div className="mt-0.5 shrink-0">
+                                      {notif.type === "success" && <CheckCircle className="h-4.5 w-4.5 text-emerald-500" />}
+                                      {notif.type === "deadline" && <AlertTriangle className="h-4.5 w-4.5 text-rose-500 animate-bounce" />}
+                                      {notif.type === "info" && <Briefcase className="h-4.5 w-4.5 text-blue-500" />}
+                                    </div>
+                                    <div className="flex-1 space-y-0.5">
+                                      <div className="flex items-center justify-between gap-2">
+                                        <p className="text-xs font-bold text-slate-800 dark:text-slate-200">{notif.title}</p>
+                                        <span className="text-[9px] font-medium text-slate-400 font-mono shrink-0">{notif.time}</span>
+                                      </div>
+                                      <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-normal">{notif.message}</p>
+                                      <div className="flex gap-2.5 pt-1">
+                                        {!notif.isRead && (
+                                          <button
+                                            type="button"
+                                            onClick={() => {
+                                              setNotifications(prev => prev.map(n => n.id === notif.id ? { ...n, isRead: true } : n));
+                                            }}
+                                            className="text-[9px] font-bold text-indigo-600 dark:text-indigo-400 hover:underline"
+                                          >
+                                            Mark read
+                                          </button>
+                                        )}
+                                        <button
+                                          type="button"
+                                          onClick={() => {
+                                            setNotifications(prev => prev.filter(n => n.id !== notif.id));
+                                          }}
+                                          className="text-[9px] font-bold text-slate-400 dark:text-slate-500 hover:text-rose-500 hover:underline"
+                                        >
+                                          Dismiss
+                                        </button>
+                                      </div>
+                                    </div>
+                                  </div>
+                                ))
+                              )}
+                            </div>
+                          </>
+                        )}
                       </div>
                     </>
                   )}
@@ -2215,11 +2224,10 @@ export default function App() {
                   type="button"
                   id="toggle-kanban"
                   onClick={() => setViewMode("kanban")}
-                  className={`flex items-center gap-2 rounded-lg px-4 py-1.5 text-sm font-medium transition-all cursor-pointer ${
-                    viewMode === "kanban"
-                      ? "bg-white text-indigo-600 shadow-sm"
-                      : "text-slate-500 hover:text-slate-900"
-                  }`}
+                  className={`flex items-center gap-2 rounded-lg px-4 py-1.5 text-sm font-medium transition-all cursor-pointer ${viewMode === "kanban"
+                    ? "bg-white text-indigo-600 shadow-sm"
+                    : "text-slate-500 hover:text-slate-900"
+                    }`}
                 >
                   <Kanban className="h-4 w-4" />
                   <span>Board</span>
@@ -2228,11 +2236,10 @@ export default function App() {
                   type="button"
                   id="toggle-table"
                   onClick={() => setViewMode("table")}
-                  className={`flex items-center gap-2 rounded-lg px-4 py-1.5 text-sm font-medium transition-all cursor-pointer ${
-                    viewMode === "table"
-                      ? "bg-white text-indigo-600 shadow-sm"
-                      : "text-slate-500 hover:text-slate-900"
-                  }`}
+                  className={`flex items-center gap-2 rounded-lg px-4 py-1.5 text-sm font-medium transition-all cursor-pointer ${viewMode === "table"
+                    ? "bg-white text-indigo-600 shadow-sm"
+                    : "text-slate-500 hover:text-slate-900"
+                    }`}
                 >
                   <TableIcon className="h-4 w-4" />
                   <span>Table</span>
@@ -2241,11 +2248,10 @@ export default function App() {
                   type="button"
                   id="toggle-resumes"
                   onClick={() => setViewMode("resumes")}
-                  className={`flex items-center gap-2 rounded-lg px-4 py-1.5 text-sm font-medium transition-all cursor-pointer ${
-                    viewMode === "resumes"
-                      ? "bg-white text-indigo-600 shadow-sm"
-                      : "text-slate-500 hover:text-slate-900"
-                  }`}
+                  className={`flex items-center gap-2 rounded-lg px-4 py-1.5 text-sm font-medium transition-all cursor-pointer ${viewMode === "resumes"
+                    ? "bg-white text-indigo-600 shadow-sm"
+                    : "text-slate-500 hover:text-slate-900"
+                    }`}
                 >
                   <FileText className="h-4 w-4" />
                   <span>Resumes</span>
@@ -2254,11 +2260,10 @@ export default function App() {
                   type="button"
                   id="toggle-notes"
                   onClick={() => setViewMode("notes")}
-                  className={`flex items-center gap-2 rounded-lg px-4 py-1.5 text-sm font-medium transition-all cursor-pointer ${
-                    viewMode === "notes"
-                      ? "bg-white text-indigo-600 shadow-sm"
-                      : "text-slate-500 hover:text-slate-900"
-                  }`}
+                  className={`flex items-center gap-2 rounded-lg px-4 py-1.5 text-sm font-medium transition-all cursor-pointer ${viewMode === "notes"
+                    ? "bg-white text-indigo-600 shadow-sm"
+                    : "text-slate-500 hover:text-slate-900"
+                    }`}
                 >
                   <Notebook className="h-4 w-4" />
                   <span>Notes &amp; Wishlist</span>
@@ -2277,13 +2282,12 @@ export default function App() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -15 }}
               transition={{ duration: 0.25 }}
-              className={`grid grid-cols-1 gap-6 md:grid-cols-2 ${
-                COLUMNS.filter((col) => !statusFilter || col.status === statusFilter).length === 1 ? "lg:grid-cols-1 max-w-md mx-auto w-full" : 
-                COLUMNS.filter((col) => !statusFilter || col.status === statusFilter).length === 2 ? "lg:grid-cols-2 max-w-3xl mx-auto w-full" : 
-                COLUMNS.filter((col) => !statusFilter || col.status === statusFilter).length === 3 ? "lg:grid-cols-3" : 
-                COLUMNS.filter((col) => !statusFilter || col.status === statusFilter).length === 4 ? "lg:grid-cols-4" : 
-                "lg:grid-cols-5"
-              } items-start`}
+              className={`grid grid-cols-1 gap-6 md:grid-cols-2 ${COLUMNS.filter((col) => !statusFilter || col.status === statusFilter).length === 1 ? "lg:grid-cols-1 max-w-md mx-auto w-full" :
+                COLUMNS.filter((col) => !statusFilter || col.status === statusFilter).length === 2 ? "lg:grid-cols-2 max-w-3xl mx-auto w-full" :
+                  COLUMNS.filter((col) => !statusFilter || col.status === statusFilter).length === 3 ? "lg:grid-cols-3" :
+                    COLUMNS.filter((col) => !statusFilter || col.status === statusFilter).length === 4 ? "lg:grid-cols-4" :
+                      "lg:grid-cols-5"
+                } items-start`}
               id="kanban-view"
             >
               {COLUMNS.filter((col) => !statusFilter || col.status === statusFilter).map((column) => {
@@ -2378,7 +2382,7 @@ export default function App() {
                                   </div>
 
                                   {/* Quick Action Icons */}
-                                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                  <div className="flex items-center gap-1 opacity-100 transition-opacity">
                                     <button
                                       type="button"
                                       onClick={() => openEditApplicationModal(app)}
@@ -2654,9 +2658,8 @@ export default function App() {
                                 <select
                                   value={app.status}
                                   onChange={(e) => handleStatusChange(app.id, e.target.value as JobStatus)}
-                                  className={`rounded-lg border px-2.5 py-1 text-xs font-semibold focus:outline-none cursor-pointer ${
-                                    columnInfo?.lightBg || "bg-slate-50"
-                                  } ${columnInfo?.text || "text-slate-700"} ${columnInfo?.border || "border-slate-200"}`}
+                                  className={`rounded-lg border px-2.5 py-1 text-xs font-semibold focus:outline-none cursor-pointer ${columnInfo?.lightBg || "bg-slate-50"
+                                    } ${columnInfo?.text || "text-slate-700"} ${columnInfo?.border || "border-slate-200"}`}
                                 >
                                   {COLUMNS.map((col) => (
                                     <option key={col.status} value={col.status}>
@@ -2763,7 +2766,7 @@ export default function App() {
                         Bio & Contact
                       </h3>
                     </div>
-                    
+
                     <div className="space-y-3.5 text-xs">
                       <div>
                         <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block mb-0.5">
@@ -2818,8 +2821,8 @@ export default function App() {
                         </span>
                         <div className="flex flex-wrap gap-1.5">
                           {(userProfile.skills || "").split(",").filter(Boolean).map((s: string, idx: number) => (
-                            <span 
-                              key={idx} 
+                            <span
+                              key={idx}
                               className="bg-slate-50 dark:bg-slate-950/40 text-slate-700 dark:text-slate-300 px-2.5 py-1 rounded-lg text-[10px] font-semibold border border-slate-200/50 dark:border-slate-800/60"
                             >
                               {s.trim()}
@@ -2847,10 +2850,10 @@ export default function App() {
                           <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block mb-1">
                             LinkedIn Profile
                           </span>
-                          <a 
-                            href={userProfile.linkedinUrl} 
-                            target="_blank" 
-                            rel="noopener noreferrer" 
+                          <a
+                            href={userProfile.linkedinUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
                             className="text-indigo-600 dark:text-indigo-400 hover:underline inline-flex items-center gap-1 font-semibold"
                           >
                             <span>View LinkedIn Profile</span>
@@ -2873,7 +2876,7 @@ export default function App() {
                 </div>
               </div>
             </motion.div>
-            ) : viewMode === "resumes" ? (
+          ) : viewMode === "resumes" ? (
             <motion.div
               key="resumes-view"
               initial={{ opacity: 0, y: 15 }}
@@ -2926,19 +2929,17 @@ export default function App() {
                         return (
                           <div
                             key={resume.id}
-                            className={`bg-white dark:bg-slate-800 p-5 rounded-2xl border transition-all ${
-                              isSel
-                                ? "border-indigo-500 dark:border-indigo-500 ring-2 ring-indigo-500/10"
-                                : "border-slate-200 dark:border-slate-700"
-                            }`}
+                            className={`bg-white dark:bg-slate-800 p-5 rounded-2xl border transition-all ${isSel
+                              ? "border-indigo-500 dark:border-indigo-500 ring-2 ring-indigo-500/10"
+                              : "border-slate-200 dark:border-slate-700"
+                              }`}
                           >
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                               <div className="flex items-center gap-3.5">
-                                <div className={`p-3 rounded-xl ${
-                                  isSel 
-                                    ? "bg-indigo-50 text-indigo-600 dark:bg-indigo-950/40 dark:text-indigo-400" 
-                                    : "bg-slate-50 text-slate-500 dark:bg-slate-900 dark:text-slate-400"
-                                }`}>
+                                <div className={`p-3 rounded-xl ${isSel
+                                  ? "bg-indigo-50 text-indigo-600 dark:bg-indigo-950/40 dark:text-indigo-400"
+                                  : "bg-slate-50 text-slate-500 dark:bg-slate-900 dark:text-slate-400"
+                                  }`}>
                                   <FileText className="h-6 w-6" />
                                 </div>
                                 <div className="min-w-0">
@@ -3048,11 +3049,11 @@ export default function App() {
               <AnimatePresence>
                 {isUploadingResume && (
                   <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/65 backdrop-blur-xs">
-                    <div 
+                    <div
                       className="absolute inset-0 cursor-default"
                       onClick={() => setIsUploadingResume(false)}
                     />
-                    
+
                     <motion.div
                       initial={{ opacity: 0, scale: 0.95, y: 10 }}
                       animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -3108,10 +3109,10 @@ export default function App() {
                                 reader.onload = (event) => {
                                   const txt = event.target?.result;
                                   if (typeof txt === "string") {
-                                    const cleaned = file.name.endsWith(".txt") 
-                                      ? txt 
+                                    const cleaned = file.name.endsWith(".txt")
+                                      ? txt
                                       : txt.replace(/[^\x20-\x7E\s]/g, " ").replace(/\s+/g, " ");
-                                    
+
                                     const newResume = {
                                       id: `resume-${Date.now()}`,
                                       name: file.name,
@@ -3121,12 +3122,12 @@ export default function App() {
                                       isSelected: true,
                                       content: cleaned
                                     };
-                                    
+
                                     setResumes(prev => {
                                       const deactivated = prev.map(r => ({ ...r, isSelected: false }));
                                       return [newResume, ...deactivated];
                                     });
-                                    
+
                                     setNotifications(prev => [
                                       {
                                         id: `notif-${Date.now()}`,
@@ -3151,7 +3152,7 @@ export default function App() {
                           <h4 className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
                             Your Stored Resumes ({resumes.length})
                           </h4>
-                          
+
                           {resumes.length === 0 ? (
                             <div className="text-center py-4 text-slate-400 dark:text-slate-500 text-xs italic">
                               No resumes uploaded yet. Drag &amp; drop a file above to add!
@@ -3163,11 +3164,10 @@ export default function App() {
                                 return (
                                   <div
                                     key={resume.id}
-                                    className={`p-3 rounded-xl border flex items-center justify-between gap-3 text-xs transition-all ${
-                                      isSel 
-                                        ? "bg-indigo-50/40 dark:bg-indigo-950/20 border-indigo-500 ring-1 ring-indigo-500/20" 
-                                        : "bg-slate-50/45 dark:bg-slate-900/30 border-slate-100 dark:border-slate-700/60 hover:border-slate-200 dark:hover:border-slate-650"
-                                    }`}
+                                    className={`p-3 rounded-xl border flex items-center justify-between gap-3 text-xs transition-all ${isSel
+                                      ? "bg-indigo-50/40 dark:bg-indigo-950/20 border-indigo-500 ring-1 ring-indigo-500/20"
+                                      : "bg-slate-50/45 dark:bg-slate-900/30 border-slate-100 dark:border-slate-700/60 hover:border-slate-200 dark:hover:border-slate-650"
+                                      }`}
                                   >
                                     <div className="flex items-center gap-2.5 min-w-0 flex-1">
                                       <FileText className={`h-4 w-4 shrink-0 ${isSel ? "text-indigo-600 dark:text-indigo-400" : "text-slate-400"}`} />
@@ -3441,8 +3441,8 @@ export default function App() {
                                 const txt = event.target?.result;
                                 if (typeof txt === "string") {
                                   // Strip binary characters if uploaded .pdf or .docx directly
-                                  const cleaned = file.name.endsWith(".txt") 
-                                    ? txt 
+                                  const cleaned = file.name.endsWith(".txt")
+                                    ? txt
                                     : txt.replace(/[^\x20-\x7E\s]/g, " ").replace(/\s+/g, " ");
                                   setAtsResumeText(cleaned);
                                 }
@@ -3534,13 +3534,12 @@ export default function App() {
                               cy="56"
                             />
                             <circle
-                              className={`transition-all duration-500 ${
-                                realTimeAtsAnalysis.score >= 75
-                                  ? "text-emerald-500"
-                                  : realTimeAtsAnalysis.score >= 50
+                              className={`transition-all duration-500 ${realTimeAtsAnalysis.score >= 75
+                                ? "text-emerald-500"
+                                : realTimeAtsAnalysis.score >= 50
                                   ? "text-amber-500"
                                   : "text-rose-500"
-                              }`}
+                                }`}
                               strokeWidth="7"
                               strokeDasharray={289}
                               strokeDashoffset={289 - (289 * realTimeAtsAnalysis.score) / 100}
@@ -3561,22 +3560,21 @@ export default function App() {
                       </div>
 
                       <div className="md:col-span-7 space-y-2 text-left">
-                        <span className={`inline-block text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider ${
-                          realTimeAtsAnalysis.score >= 75
-                            ? "bg-emerald-50 text-emerald-700 border border-emerald-100"
-                            : realTimeAtsAnalysis.score >= 50
+                        <span className={`inline-block text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider ${realTimeAtsAnalysis.score >= 75
+                          ? "bg-emerald-50 text-emerald-700 border border-emerald-100"
+                          : realTimeAtsAnalysis.score >= 50
                             ? "bg-amber-50 text-amber-700 border border-amber-100"
                             : "bg-rose-50 text-rose-700 border border-rose-100"
-                        }`}>
+                          }`}>
                           {realTimeAtsAnalysis.score >= 75
                             ? "Recruiter Grade - Strong Overlap"
                             : realTimeAtsAnalysis.score >= 50
-                            ? "Medium Overlap - Tailor further"
-                            : "Low Compatibility - Missing critical tech"}
+                              ? "Medium Overlap - Tailor further"
+                              : "Low Compatibility - Missing critical tech"}
                         </span>
                         <p className="text-xs text-slate-500 leading-normal font-sans">
-                          {realTimeAtsAnalysis.score >= 75 
-                            ? "Excellent fit! Your resume matches a significant portion of the skills found in the job description." 
+                          {realTimeAtsAnalysis.score >= 75
+                            ? "Excellent fit! Your resume matches a significant portion of the skills found in the job description."
                             : "Consider editing your bullet achievements to explicitly reference missing keywords listed below to boost your real-time score."}
                         </p>
                       </div>
@@ -3610,95 +3608,100 @@ export default function App() {
                       </div>
 
                       {/* Missing Panel */}
-                      <div>
-                        <div className="flex items-center justify-between mb-1.5">
-                          <span className="text-[10px] font-bold text-amber-700 uppercase tracking-wider">
-                            Missing Tech &amp; Requirements ({realTimeAtsAnalysis.missing.length})
-                          </span>
-                          <AlertTriangle className="h-4 w-4 text-amber-500" />
-                        </div>
-                        <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto p-2 bg-slate-50/50 rounded-xl border border-slate-100">
-                          {realTimeAtsAnalysis.missing.length === 0 ? (
-                            <span className="text-[11px] text-slate-400 italic p-1">All primary keywords matched! Excellent!</span>
-                          ) : (
-                            realTimeAtsAnalysis.missing.map((kw, idx) => {
-                              const isSelected = selectedMissingKeyword === kw || (!selectedMissingKeyword && idx === 0);
-                              return (
-                                <span
-                                  key={idx}
-                                  onClick={() => setSelectedMissingKeyword(kw)}
-                                  title="Click to view tailoring tip & suggestions"
-                                  className={`inline-flex items-center rounded-lg px-2.5 py-1 text-xs font-semibold cursor-pointer transition-all duration-150 font-sans ${
-                                    isSelected 
-                                      ? "bg-amber-100 border-amber-300 text-amber-900 ring-2 ring-amber-200/50 scale-102" 
-                                      : "bg-amber-50 border border-amber-100 text-amber-800 hover:bg-amber-100"
-                                  }`}
-                                >
-                                  + {kw}
-                                </span>
-                              );
-                            })
-                          )}
-                        </div>
-                      </div>
+                      {atsResumeText.trim() && atsJobDescriptionText.trim() && (
+                        <>
+                          <div>
+                            <div className="flex items-center justify-between mb-1.5">
+                              <span className="text-[10px] font-bold text-amber-700 uppercase tracking-wider">
+                                Missing Tech &amp; Requirements ({realTimeAtsAnalysis.missing.length})
+                              </span>
+                              <AlertTriangle className="h-4 w-4 text-amber-500" />
+                            </div>
+                            <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto p-2 bg-slate-50/50 rounded-xl border border-slate-100">
+                              {realTimeAtsAnalysis.missing.length === 0 ? (
+                                <span className="text-[11px] text-slate-400 italic p-1">All primary keywords matched! Excellent!</span>
+                              ) : (
+                                realTimeAtsAnalysis.missing.map((kw, idx) => {
+                                  const isSelected = selectedMissingKeyword === kw || (!selectedMissingKeyword && idx === 0);
+                                  return (
+                                    <span
+                                      key={idx}
+                                      onClick={() => setSelectedMissingKeyword(kw)}
+                                      title="Click to view tailoring tip & suggestions"
+                                      className={`inline-flex items-center rounded-lg px-2.5 py-1 text-xs font-semibold cursor-pointer transition-all duration-150 font-sans ${isSelected
+                                        ? "bg-amber-100 border-amber-300 text-amber-900 ring-2 ring-amber-200/50 scale-102"
+                                        : "bg-amber-50 border border-amber-100 text-amber-800 hover:bg-amber-100"
+                                        }`}
+                                    >
+                                      + {kw}
+                                    </span>
+                                  );
+                                })
+                              )}
+                            </div>
+                          </div>
 
-                      {/* Help the user make a change (Interactive Helper Box) */}
-                      {realTimeAtsAnalysis.missing.length > 0 && (
-                        <div className="p-3 bg-indigo-50/60 border border-indigo-100 rounded-xl space-y-2 text-left">
-                          <div className="flex items-center gap-1.5">
-                            <Sparkles className="h-4 w-4 text-indigo-500" />
-                            <span className="text-[10px] font-extrabold text-indigo-950 uppercase tracking-wider">
-                              Interactive Tailoring Helper: {selectedMissingKeyword || realTimeAtsAnalysis.missing[0]}
-                            </span>
-                          </div>
-                          <p className="text-xs text-slate-600 leading-normal">
-                            Click one of these suggestions to append it to your resume and watch your score increase in real-time!
-                          </p>
-                          <div className="space-y-1.5 pt-1">
-                            {[
-                              `Designed and implemented high-performance integrations using ${selectedMissingKeyword || realTimeAtsAnalysis.missing[0]} to optimize system workflows.`,
-                              `Collaborated with key stakeholders to align technical architecture with standard ${selectedMissingKeyword || realTimeAtsAnalysis.missing[0]} best practices.`
-                            ].map((suggestion, i) => (
-                              <button
-                                key={i}
-                                type="button"
-                                onClick={() => {
-                                  setAtsResumeText(prev => prev + `\n- ${suggestion}`);
-                                  setModalAlert({
-                                    title: "Accomplishment Appended!",
-                                    message: `Appended suggestion containing "${selectedMissingKeyword || realTimeAtsAnalysis.missing[0]}" to your resume draft. Your score will update instantly!`,
-                                    type: "success"
-                                  });
-                                }}
-                                className="w-full text-left bg-white hover:bg-indigo-50 p-2 rounded-lg border border-slate-200/80 hover:border-indigo-300 text-xs font-medium text-slate-700 leading-relaxed cursor-pointer transition-all duration-150 flex items-start gap-1.5"
-                              >
-                                <span className="text-indigo-500 font-bold shrink-0 mt-0.5">+</span>
-                                <span>{suggestion}</span>
-                              </button>
-                            ))}
-                          </div>
-                        </div>
+                          {/* Help the user make a change (Interactive Helper Box) */}
+                          {realTimeAtsAnalysis.missing.length > 0 && (
+                            <div className="p-3 bg-indigo-50/60 border border-indigo-100 rounded-xl space-y-2 text-left">
+                              <div className="flex items-center gap-1.5">
+                                <Sparkles className="h-4 w-4 text-indigo-500" />
+                                <span className="text-[10px] font-extrabold text-indigo-950 uppercase tracking-wider">
+                                  Interactive Tailoring Helper: {selectedMissingKeyword || realTimeAtsAnalysis.missing[0]}
+                                </span>
+                              </div>
+                              <p className="text-xs text-slate-600 leading-normal">
+                                Click one of these suggestions to append it to your resume and watch your score increase in real-time!
+                              </p>
+                              <div className="space-y-1.5 pt-1">
+                                {[
+                                  `Designed and implemented high-performance integrations using ${selectedMissingKeyword || realTimeAtsAnalysis.missing[0]} to optimize system workflows.`,
+                                  `Collaborated with key stakeholders to align technical architecture with standard ${selectedMissingKeyword || realTimeAtsAnalysis.missing[0]} best practices.`
+                                ].map((suggestion, i) => (
+                                  <button
+                                    key={i}
+                                    type="button"
+                                    onClick={() => {
+                                      setAtsResumeText(prev => prev + `\n- ${suggestion}`);
+                                      setModalAlert({
+                                        title: "Accomplishment Appended!",
+                                        message: `Appended suggestion containing "${selectedMissingKeyword || realTimeAtsAnalysis.missing[0]}" to your resume draft. Your score will update instantly!`,
+                                        type: "success"
+                                      });
+                                    }}
+                                    className="w-full text-left bg-white hover:bg-indigo-50 p-2 rounded-lg border border-slate-200/80 hover:border-indigo-300 text-xs font-medium text-slate-700 leading-relaxed cursor-pointer transition-all duration-150 flex items-start gap-1.5"
+                                  >
+                                    <span className="text-indigo-500 font-bold shrink-0 mt-0.5">+</span>
+                                    <span>{suggestion}</span>
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </>
                       )}
                     </div>
                   </div>
 
                   {/* Tailoring Recommendations Bullet List */}
-                  <div className="border-t border-slate-100 pt-4 mt-2 space-y-2 text-left">
-                    <div className="flex items-center gap-1.5">
-                      <Sparkles className="h-4 w-4 text-indigo-500" />
-                      <span className="text-[10px] font-bold text-indigo-800 uppercase tracking-wider">
-                        Actionable Tailoring Recommendations
-                      </span>
+                  {atsResumeText.trim() && atsJobDescriptionText.trim() && (
+                    <div className="border-t border-slate-100 pt-4 mt-2 space-y-2 text-left">
+                      <div className="flex items-center gap-1.5">
+                        <Sparkles className="h-4 w-4 text-indigo-500" />
+                        <span className="text-[10px] font-bold text-indigo-800 uppercase tracking-wider">
+                          Actionable Tailoring Recommendations
+                        </span>
+                      </div>
+                      <ul className="space-y-2 text-xs text-slate-600 pl-0 leading-relaxed list-none">
+                        {realTimeAtsAnalysis.atsSuggestions?.slice(0, 3).map((tip, i) => (
+                          <li key={i} className="flex items-start gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                            <span className="text-indigo-500 font-bold shrink-0 mt-0.5">•</span>
+                            <span className="font-medium text-slate-700">{tip}</span>
+                          </li>
+                        ))}
+                      </ul>
                     </div>
-                    <ul className="space-y-2 text-xs text-slate-600 pl-0 leading-relaxed list-none">
-                      {realTimeAtsAnalysis.atsSuggestions?.slice(0, 3).map((tip, i) => (
-                        <li key={i} className="flex items-start gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-100">
-                          <span className="text-indigo-500 font-bold shrink-0 mt-0.5">•</span>
-                          <span className="font-medium text-slate-700">{tip}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
+                  )}
                 </div>
               </div>
 
@@ -3813,161 +3816,164 @@ export default function App() {
                   </div>
 
                   {/* Tool B: Behavioral Interview Prep */}
-                  <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4 flex flex-col justify-between">
-                    <div className="space-y-3">
-                      <div className="flex items-center gap-2">
-                        <span className="flex h-5 w-5 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 font-bold text-xs">B</span>
-                        <h4 className="font-bold text-slate-800 text-sm">Technical &amp; Behavioral Interview Prep</h4>
+                  {atsResumeText.trim() && atsJobDescriptionText.trim() && (
+                    <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4 flex flex-col justify-between">
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-2">
+                          <span className="flex h-5 w-5 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 font-bold text-xs">B</span>
+                          <h4 className="font-bold text-slate-800 text-sm">Technical &amp; Behavioral Interview Prep</h4>
+                        </div>
+                        <p className="text-[11px] text-slate-500 leading-normal">
+                          Analyze target keywords for this role and generate realistic interview questions technical teams will ask you.
+                        </p>
                       </div>
-                      <p className="text-[11px] text-slate-500 leading-normal">
-                        Analyze target keywords for this role and generate realistic interview questions technical teams will ask you.
-                      </p>
-                    </div>
 
-                    <div className="pt-2 space-y-3">
-                      <button
-                        type="button"
-                        disabled={isGeneratingPrep}
-                        onClick={handleGeneratePrep}
-                        className="w-full rounded-xl bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-100 text-xs font-bold py-2 cursor-pointer flex items-center justify-center gap-1.5 transition-all"
-                      >
-                        {isGeneratingPrep ? (
-                          <>
-                            <Loader2 className="h-3 w-3 animate-spin" />
-                            <span>Formulating...</span>
-                          </>
-                        ) : (
-                          <>
-                            <Sparkles className="h-3 w-3 text-indigo-500" />
-                            <span>Generate 3 Interview Questions</span>
-                          </>
-                        )}
-                      </button>
+                      <div className="pt-2 space-y-3">
+                        <button
+                          type="button"
+                          disabled={isGeneratingPrep}
+                          onClick={handleGeneratePrep}
+                          className="w-full rounded-xl bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-100 text-xs font-bold py-2 cursor-pointer flex items-center justify-center gap-1.5 transition-all"
+                        >
+                          {isGeneratingPrep ? (
+                            <>
+                              <Loader2 className="h-3 w-3 animate-spin" />
+                              <span>Formulating...</span>
+                            </>
+                          ) : (
+                            <>
+                              <Sparkles className="h-3 w-3 text-indigo-500" />
+                              <span>Generate 3 Interview Questions</span>
+                            </>
+                          )}
+                        </button>
 
-                      {prepQuestions.length > 0 && (
-                        <div className="space-y-2.5 max-h-[320px] overflow-y-auto pr-1">
-                          {prepQuestions.map((item, idx) => {
-                            const qText = typeof item === 'string' ? item : item.question;
-                            const rText = typeof item === 'string' ? '' : item.response;
-                            const isExpanded = !!expandedPrepIdx[idx];
+                        {prepQuestions.length > 0 && (
+                          <div className="space-y-2.5 max-h-[320px] overflow-y-auto pr-1">
+                            {prepQuestions.map((item, idx) => {
+                              const qText = typeof item === 'string' ? item : item.question;
+                              const rText = typeof item === 'string' ? '' : item.response;
+                              const isExpanded = !!expandedPrepIdx[idx];
 
-                            return (
-                              <div key={idx} className="bg-slate-50 border border-slate-200/60 rounded-xl p-2.5 text-[11px] text-slate-700 leading-relaxed flex flex-col gap-2 shadow-3xs">
-                                <div>
-                                  <span className="font-bold text-slate-900 block font-sans mb-0.5">Question {idx + 1}</span>
-                                  <p className="font-medium text-slate-800">{qText}</p>
-                                </div>
-                                
-                                {rText && (
+                              return (
+                                <div key={idx} className="bg-slate-50 border border-slate-200/60 rounded-xl p-2.5 text-[11px] text-slate-700 leading-relaxed flex flex-col gap-2 shadow-3xs">
                                   <div>
-                                    <button
-                                      type="button"
-                                      onClick={() => setExpandedPrepIdx(prev => ({ ...prev, [idx]: !prev[idx] }))}
-                                      className={`px-2.5 py-1 text-[10px] font-bold rounded-lg border transition-all cursor-pointer shadow-3xs flex items-center gap-1 ${
-                                        isExpanded 
-                                          ? "bg-indigo-600 text-white border-indigo-600" 
-                                          : "bg-white text-indigo-700 border-indigo-100 hover:bg-indigo-50"
-                                      }`}
-                                    >
-                                      {isExpanded ? "Hide Solution" : "✓ View Best Answer"}
-                                    </button>
+                                    <span className="font-bold text-slate-900 block font-sans mb-0.5">Question {idx + 1}</span>
+                                    <p className="font-medium text-slate-800">{qText}</p>
                                   </div>
-                                )}
 
-                                {isExpanded && rText && (
-                                  <div className="bg-white border border-indigo-100 shadow-sm rounded-xl p-3.5 space-y-3 animate-in fade-in duration-200">
-                                    <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-                                      <span className="inline-flex items-center gap-1.5 text-[9px] uppercase tracking-wider font-bold text-indigo-600 font-sans">
-                                        <Sparkles className="h-3 w-3 animate-pulse text-indigo-500" />
-                                        <span>Highly Impressive STAR Response</span>
-                                      </span>
-                                      
+                                  {rText && (
+                                    <div>
                                       <button
                                         type="button"
-                                        onClick={() => {
-                                          navigator.clipboard.writeText(rText);
-                                          setModalAlert({ title: "Answer Copied!", message: "The professional interview response was copied to clipboard.", type: "success" });
-                                        }}
-                                        className="inline-flex items-center gap-1.5 text-[10px] font-bold text-indigo-700 hover:text-indigo-800 transition-colors bg-indigo-50 hover:bg-indigo-100 px-2.5 py-1.5 rounded-lg border border-indigo-100/60 cursor-pointer shadow-3xs"
+                                        onClick={() => setExpandedPrepIdx(prev => ({ ...prev, [idx]: !prev[idx] }))}
+                                        className={`px-2.5 py-1 text-[10px] font-bold rounded-lg border transition-all cursor-pointer shadow-3xs flex items-center gap-1 ${isExpanded
+                                          ? "bg-indigo-600 text-white border-indigo-600"
+                                          : "bg-white text-indigo-700 border-indigo-100 hover:bg-indigo-50"
+                                          }`}
                                       >
-                                        <Clipboard className="h-3.5 w-3.5 text-indigo-600" />
-                                        <span>Copy Response</span>
+                                        {isExpanded ? "Hide Solution" : "✓ View Best Answer"}
                                       </button>
                                     </div>
-                                    
-                                    <div className="text-[11px] text-slate-700 font-sans leading-relaxed whitespace-pre-line font-medium pr-1 max-h-48 overflow-y-auto">
-                                      {rText}
+                                  )}
+
+                                  {isExpanded && rText && (
+                                    <div className="bg-white border border-indigo-100 shadow-sm rounded-xl p-3.5 space-y-3 animate-in fade-in duration-200">
+                                      <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                                        <span className="inline-flex items-center gap-1.5 text-[9px] uppercase tracking-wider font-bold text-indigo-600 font-sans">
+                                          <Sparkles className="h-3 w-3 animate-pulse text-indigo-500" />
+                                          <span>Highly Impressive STAR Response</span>
+                                        </span>
+
+                                        <button
+                                          type="button"
+                                          onClick={() => {
+                                            navigator.clipboard.writeText(rText);
+                                            setModalAlert({ title: "Answer Copied!", message: "The professional interview response was copied to clipboard.", type: "success" });
+                                          }}
+                                          className="inline-flex items-center gap-1.5 text-[10px] font-bold text-indigo-700 hover:text-indigo-800 transition-colors bg-indigo-50 hover:bg-indigo-100 px-2.5 py-1.5 rounded-lg border border-indigo-100/60 cursor-pointer shadow-3xs"
+                                        >
+                                          <Clipboard className="h-3.5 w-3.5 text-indigo-600" />
+                                          <span>Copy Response</span>
+                                        </button>
+                                      </div>
+
+                                      <div className="text-[11px] text-slate-700 font-sans leading-relaxed whitespace-pre-line font-medium pr-1 max-h-48 overflow-y-auto">
+                                        {rText}
+                                      </div>
                                     </div>
-                                  </div>
-                                )}
-                              </div>
-                            );
-                          })}
-                        </div>
-                      )}
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
+                  )}
 
                   {/* Tool C: Cold Outreach Message Draft */}
-                  <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4 flex flex-col justify-between">
-                    <div className="space-y-3">
-                      <div className="flex items-center gap-2">
-                        <span className="flex h-5 w-5 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 font-bold text-xs">C</span>
-                        <h4 className="font-bold text-slate-800 text-sm">LinkedIn Outreach &amp; Email Draft</h4>
-                      </div>
-                      <p className="text-[11px] text-slate-500 leading-normal">
-                        Automatically draft a short, warm outreach intro or cover letter paragraph focusing on the identified skills and company requirements.
-                      </p>
-                    </div>
-
-                    <div className="pt-2 space-y-3">
-                      <button
-                        type="button"
-                        disabled={isGeneratingOutreach}
-                        onClick={handleGenerateOutreach}
-                        className="w-full rounded-xl bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-100 text-xs font-bold py-2 cursor-pointer flex items-center justify-center gap-1.5 transition-all"
-                      >
-                        {isGeneratingOutreach ? (
-                          <>
-                            <Loader2 className="h-3 w-3 animate-spin" />
-                            <span>Drafting message...</span>
-                          </>
-                        ) : (
-                          <>
-                            <Sparkles className="h-3 w-3 text-indigo-500" />
-                            <span>Draft Cold Outreach Message</span>
-                          </>
-                        )}
-                      </button>
-
-                      {outreachDraft && (
-                        <div className="space-y-2">
-                          <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 text-[10px] text-slate-700 font-mono leading-relaxed max-h-40 overflow-y-auto relative whitespace-pre-line">
-                            <span className="block text-[9px] uppercase tracking-wider font-bold text-slate-500 font-sans mb-1.5">Outreach Message Draft</span>
-                            {outreachDraft}
-                          </div>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              navigator.clipboard.writeText(outreachDraft);
-                              setModalAlert({ title: "Copied!", message: "Outreach message draft copied to clipboard.", type: "success" });
-                            }}
-                            className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-xl transition-all border border-indigo-100/80 cursor-pointer shadow-3xs"
-                          >
-                            <Clipboard className="h-3.5 w-3.5" />
-                            <span>Copy Outreach Message</span>
-                          </button>
-
-                          {/* Highlighted Outreach Motivation Line - fully selectable/copyable now */}
-                          <div className="bg-amber-50/70 border border-amber-200/40 rounded-xl p-3 text-[11px] text-amber-900 mt-2.5 shadow-3xs">
-                            <p className="leading-relaxed font-medium">
-                              💡 <span className="font-semibold text-amber-800">Outreach Mindset Booster:</span> Connection breeds opportunity! Every single message you send is an active step closer to landing your dream role. Reach out with absolute confidence and pride in your professional journey — you have got this! 🚀✨
-                            </p>
-                          </div>
+                  {atsResumeText.trim() && atsJobDescriptionText.trim() && (
+                    <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4 flex flex-col justify-between">
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-2">
+                          <span className="flex h-5 w-5 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 font-bold text-xs">C</span>
+                          <h4 className="font-bold text-slate-800 text-sm">LinkedIn Outreach &amp; Email Draft</h4>
                         </div>
-                      )}
+                        <p className="text-[11px] text-slate-500 leading-normal">
+                          Automatically draft a short, warm outreach intro or cover letter paragraph focusing on the identified skills and company requirements.
+                        </p>
+                      </div>
+
+                      <div className="pt-2 space-y-3">
+                        <button
+                          type="button"
+                          disabled={isGeneratingOutreach}
+                          onClick={handleGenerateOutreach}
+                          className="w-full rounded-xl bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-100 text-xs font-bold py-2 cursor-pointer flex items-center justify-center gap-1.5 transition-all"
+                        >
+                          {isGeneratingOutreach ? (
+                            <>
+                              <Loader2 className="h-3 w-3 animate-spin" />
+                              <span>Drafting message...</span>
+                            </>
+                          ) : (
+                            <>
+                              <Sparkles className="h-3 w-3 text-indigo-500" />
+                              <span>Draft Cold Outreach Message</span>
+                            </>
+                          )}
+                        </button>
+
+                        {outreachDraft && (
+                          <div className="space-y-2">
+                            <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 text-[10px] text-slate-700 font-mono leading-relaxed max-h-40 overflow-y-auto relative whitespace-pre-line">
+                              <span className="block text-[9px] uppercase tracking-wider font-bold text-slate-500 font-sans mb-1.5">Outreach Message Draft</span>
+                              {outreachDraft}
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                navigator.clipboard.writeText(outreachDraft);
+                                setModalAlert({ title: "Copied!", message: "Outreach message draft copied to clipboard.", type: "success" });
+                              }}
+                              className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-xl transition-all border border-indigo-100/80 cursor-pointer shadow-3xs"
+                            >
+                              <Clipboard className="h-3.5 w-3.5" />
+                              <span>Copy Outreach Message</span>
+                            </button>
+
+                            {/* Highlighted Outreach Motivation Line - fully selectable/copyable now */}
+                            <div className="bg-amber-50/70 border border-amber-200/40 rounded-xl p-3 text-[11px] text-amber-900 mt-2.5 shadow-3xs">
+                              <p className="leading-relaxed font-medium">
+                                💡 <span className="font-semibold text-amber-800">Outreach Mindset Booster:</span> Connection breeds opportunity! Every single message you send is an active step closer to landing your dream role. Reach out with absolute confidence and pride in your professional journey — you have got this! 🚀✨
+                              </p>
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               </div>
 
@@ -4082,11 +4088,10 @@ export default function App() {
                       placeholder="e.g. Google, Stripe"
                       value={formState.company}
                       onChange={(e) => setFormState({ ...formState, company: e.target.value })}
-                      className={`w-full rounded-xl border px-3.5 py-2 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-1 transition-all ${
-                        formErrors.company
-                          ? "border-rose-300 focus:border-rose-400 focus:ring-rose-400"
-                          : "border-slate-200 focus:border-slate-400 focus:ring-slate-400"
-                      }`}
+                      className={`w-full rounded-xl border px-3.5 py-2 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-1 transition-all ${formErrors.company
+                        ? "border-rose-300 focus:border-rose-400 focus:ring-rose-400"
+                        : "border-slate-200 focus:border-slate-400 focus:ring-slate-400"
+                        }`}
                     />
                     {formErrors.company && (
                       <p className="mt-1 text-xs text-rose-500 font-medium">{formErrors.company}</p>
@@ -4103,11 +4108,10 @@ export default function App() {
                       placeholder="e.g. Frontend Engineer"
                       value={formState.role}
                       onChange={(e) => setFormState({ ...formState, role: e.target.value })}
-                      className={`w-full rounded-xl border px-3.5 py-2 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-1 transition-all ${
-                        formErrors.role
-                          ? "border-rose-300 focus:border-rose-400 focus:ring-rose-400"
-                          : "border-slate-200 focus:border-slate-400 focus:ring-slate-400"
-                      }`}
+                      className={`w-full rounded-xl border px-3.5 py-2 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-1 transition-all ${formErrors.role
+                        ? "border-rose-300 focus:border-rose-400 focus:ring-rose-400"
+                        : "border-slate-200 focus:border-slate-400 focus:ring-slate-400"
+                        }`}
                     />
                     {formErrors.role && (
                       <p className="mt-1 text-xs text-rose-500 font-medium">{formErrors.role}</p>
@@ -4449,7 +4453,7 @@ export default function App() {
                     <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
                       Full Name
                     </label>
-                    <input 
+                    <input
                       type="text"
                       name="profile-name"
                       required
@@ -4463,7 +4467,7 @@ export default function App() {
                     <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
                       Email Address
                     </label>
-                    <input 
+                    <input
                       type="email"
                       name="profile-email"
                       defaultValue={userProfile.email}
@@ -4478,7 +4482,7 @@ export default function App() {
                     <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
                       Headline / Professional Title
                     </label>
-                    <input 
+                    <input
                       type="text"
                       name="profile-title"
                       defaultValue={userProfile.title}
@@ -4491,7 +4495,7 @@ export default function App() {
                     <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
                       Target Role
                     </label>
-                    <input 
+                    <input
                       type="text"
                       name="profile-target"
                       defaultValue={userProfile.targetRole}
@@ -4506,7 +4510,7 @@ export default function App() {
                     <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
                       Location
                     </label>
-                    <input 
+                    <input
                       type="text"
                       name="profile-location"
                       defaultValue={userProfile.location}
@@ -4519,7 +4523,7 @@ export default function App() {
                     <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
                       LinkedIn Profile URL
                     </label>
-                    <input 
+                    <input
                       type="url"
                       name="profile-linkedin"
                       defaultValue={userProfile.linkedinUrl}
@@ -4533,7 +4537,7 @@ export default function App() {
                   <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
                     Key Skills (comma-separated list)
                   </label>
-                  <input 
+                  <input
                     type="text"
                     name="profile-skills"
                     defaultValue={userProfile.skills}
@@ -4546,7 +4550,7 @@ export default function App() {
                   <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
                     Professional Bio
                   </label>
-                  <textarea 
+                  <textarea
                     name="profile-bio"
                     rows={4}
                     defaultValue={userProfile.bio}
