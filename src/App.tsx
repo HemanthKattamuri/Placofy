@@ -1611,9 +1611,9 @@ export default function App() {
       {/* Premium Header */}
       <header className="sticky top-0 z-10 border-b border-slate-200/80 dark:border-slate-800/80 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md shrink-0 shadow-xs">
         <div className="mx-auto max-w-7xl px-4 py-3.5 sm:px-6 lg:px-8">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-wrap sm:flex-nowrap items-center justify-between gap-4 w-full">
             {/* Logo and Name */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 order-1">
               <div
                 onClick={() => {
                   setViewMode("kanban");
@@ -1645,7 +1645,7 @@ export default function App() {
             </div>
 
             {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full sm:w-auto">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full sm:w-auto order-3 sm:order-2">
               <button
                 type="button"
                 id="btn-ats-suite"
@@ -1672,8 +1672,10 @@ export default function App() {
               </button>
 
               <div className="h-6 w-px bg-slate-200 dark:bg-slate-700 hidden sm:block mx-1"></div>
-              {/* Profile Icon Dropdown Container */}
-              <div className="relative shrink-0" id="three-dot-menu-container">
+            </div>
+
+            {/* Profile Icon Dropdown Container */}
+            <div className="relative shrink-0 order-2 sm:order-3" id="three-dot-menu-container">
                   <button
                     type="button"
                     id="btn-more-options"
@@ -2145,7 +2147,6 @@ export default function App() {
                     </>
                   )}
                 </div>
-            </div>
           </div>
         </div>
       </header>
@@ -2155,25 +2156,25 @@ export default function App() {
         {viewMode !== "ats" && (
           <section className="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-4 shrink-0" id="dashboard-stats-section">
             {/* Stat Item 1 */}
-            <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-sm aspect-square flex flex-col justify-center items-center text-center">
+            <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-sm min-h-[110px] h-full flex flex-col justify-center items-center text-center">
               <p className="text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-wide">Total Applications</p>
               <p className="text-3xl md:text-4xl font-black mt-2 text-slate-900 font-mono">{stats.total}</p>
             </div>
 
             {/* Stat Item 2 */}
-            <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-sm aspect-square flex flex-col justify-center items-center text-center">
+            <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-sm min-h-[110px] h-full flex flex-col justify-center items-center text-center">
               <p className="text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-wide">Response Rate</p>
               <p className="text-3xl md:text-4xl font-black mt-2 text-blue-600 font-mono">{stats.responseRate}</p>
             </div>
 
             {/* Stat Item 3 */}
-            <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-sm aspect-square flex flex-col justify-center items-center text-center">
+            <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-sm min-h-[110px] h-full flex flex-col justify-center items-center text-center">
               <p className="text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-wide">Interview Conversion</p>
               <p className="text-3xl md:text-4xl font-black mt-2 text-purple-600 font-mono">{stats.interviewRate}</p>
             </div>
 
             {/* Stat Item 4 */}
-            <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-sm border-b-4 border-b-red-500 aspect-square flex flex-col justify-center items-center text-center">
+            <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-sm border-b-4 border-b-red-500 min-h-[110px] h-full flex flex-col justify-center items-center text-center">
               <p className="text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-wide">Needs Follow-up</p>
               <p className="text-3xl md:text-4xl font-black mt-2 text-red-600 font-mono flex flex-col items-center">
                 {stats.needsFollowUpCount} <span className="text-[9px] md:text-[10px] font-semibold text-slate-400 mt-0.5">&gt;14 days</span>
