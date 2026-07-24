@@ -1583,7 +1583,10 @@ export default function App() {
   if (!isLoggedIn) {
     return (
       <>
-        <LoginScreen onLoginSuccess={(profile) => {
+        <LoginScreen 
+          deferredPrompt={deferredPrompt}
+          onInstallClick={handleInstallClick}
+          onLoginSuccess={(profile) => {
           if (profile) {
             setUserProfile(profile);
           }
@@ -4748,9 +4751,11 @@ export default function App() {
 
 interface LoginScreenProps {
   onLoginSuccess: (profile?: any) => void;
+  deferredPrompt?: any;
+  onInstallClick?: () => void;
 }
 
-function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
+function LoginScreen({ onLoginSuccess, deferredPrompt, onInstallClick }: LoginScreenProps) {
   const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -4832,7 +4837,16 @@ function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 font-sans">
+    <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8 font-sans relative">
+      {deferredPrompt && onInstallClick && (
+        <button
+          onClick={onInstallClick}
+          className="absolute top-8 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm rounded-xl shadow-[0_4px_20px_rgba(79,70,229,0.3)] flex items-center gap-2 transform hover:scale-105 active:scale-95 transition-all w-max"
+        >
+          <Download className="h-5 w-5" />
+          Install Placofy App
+        </button>
+      )}
       <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-3xl border border-slate-200 shadow-md">
         <div className="text-center">
           <div className="mx-auto h-14 w-14 rounded-2xl overflow-hidden shadow-md shadow-indigo-100 mb-4 bg-white border border-slate-200">
