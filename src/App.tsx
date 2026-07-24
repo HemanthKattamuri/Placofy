@@ -621,6 +621,26 @@ function CareerNotesView({ userNotes, setUserNotes, setNotifications }: CareerNo
 
 
 export default function App() {
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+
+  useEffect(() => {
+    const handler = (e: any) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+    window.addEventListener('beforeinstallprompt', handler);
+    return () => window.removeEventListener('beforeinstallprompt', handler);
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') {
+      setDeferredPrompt(null);
+    }
+  };
+
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(() => {
     return localStorage.getItem("placofy_user_logged") === "true";
   });
@@ -1670,6 +1690,17 @@ export default function App() {
                 <ClipboardPaste className="h-4 w-4" />
                 <span>Paste Job Description</span>
               </button>
+
+              {deferredPrompt && (
+                <button
+                  type="button"
+                  onClick={handleInstallClick}
+                  className={`px-4 py-2 text-sm font-semibold rounded-xl border flex items-center justify-center gap-2 cursor-pointer shadow-xs w-full sm:w-auto transform active:scale-95 transition-all duration-200 hover:-translate-y-0.5 text-white bg-indigo-600 border-transparent hover:bg-indigo-500`}
+                >
+                  <Download className="h-4 w-4" />
+                  <span>Download App</span>
+                </button>
+              )}
 
               <div className="h-6 w-px bg-slate-200 dark:bg-slate-700 hidden sm:block mx-1"></div>
             </div>
