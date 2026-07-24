@@ -8,28 +8,28 @@
         {viewMode !== "ats" && (
           <section className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 shrink-0" id="dashboard-stats-section">
             {/* Stat Item 1 */}
-            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm aspect-square flex flex-col justify-center items-center text-center">
               <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Applications</p>
-              <p className="text-2xl font-bold mt-1 text-slate-900 font-mono">{stats.total}</p>
+              <p className="text-3xl font-bold mt-2 text-slate-900 font-mono">{stats.total}</p>
             </div>
 
             {/* Stat Item 2 */}
-            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm aspect-square flex flex-col justify-center items-center text-center">
               <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Response Rate</p>
-              <p className="text-2xl font-bold mt-1 text-blue-600 font-mono">{stats.responseRate}</p>
+              <p className="text-3xl font-bold mt-2 text-blue-600 font-mono">{stats.responseRate}</p>
             </div>
 
             {/* Stat Item 3 */}
-            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm aspect-square flex flex-col justify-center items-center text-center">
               <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Interview Conversion</p>
-              <p className="text-2xl font-bold mt-1 text-purple-600 font-mono">{stats.interviewRate}</p>
+              <p className="text-3xl font-bold mt-2 text-purple-600 font-mono">{stats.interviewRate}</p>
             </div>
 
             {/* Stat Item 4 */}
-            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm border-l-4 border-l-red-500">
+            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm border-b-4 border-b-red-500 aspect-square flex flex-col justify-center items-center text-center">
               <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Needs Follow-up</p>
-              <p className="text-2xl font-bold mt-1 text-red-600 font-mono">
-                {stats.needsFollowUpCount} <span className="text-xs font-normal text-slate-400">&gt;14 days</span>
+              <p className="text-3xl font-bold mt-2 text-red-600 font-mono flex flex-col items-center">
+                {stats.needsFollowUpCount} <span className="text-xs font-normal text-slate-400 mt-1">&gt;14 days</span>
               </p>
             </div>
           </section>

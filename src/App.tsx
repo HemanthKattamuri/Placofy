@@ -1640,6 +1640,49 @@ export default function App() {
                     <Clock className="h-3.5 w-3.5 text-indigo-500" />
                     <span>{systemTime || "July 2, 2026"}</span>
                   </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full sm:w-auto">
+              <button
+                type="button"
+                id="btn-ats-suite"
+                onClick={() => {
+                  setViewMode("ats");
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
+                className={`px-4 py-2 text-sm font-semibold rounded-xl border flex items-center justify-center gap-2 cursor-pointer shadow-xs w-full sm:w-auto transform active:scale-95 transition-all duration-200 hover:-translate-y-0.5 ${viewMode === "ats"
+                  ? "text-white bg-gradient-to-r from-indigo-600 to-violet-600 border-transparent hover:from-indigo-500 hover:to-violet-500 hover:shadow-md hover:shadow-indigo-100"
+                  : "text-slate-700 bg-white border-slate-200 hover:bg-indigo-50/50 hover:text-indigo-600 hover:border-indigo-200"
+                  }`}
+              >
+                <Sparkles className="h-4 w-4" />
+                <span>Resume &amp; ATS Suite</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setIsPasteOpen(true)}
+                className={`px-4 py-2 text-sm font-semibold rounded-xl border flex items-center justify-center gap-2 cursor-pointer shadow-xs w-full sm:w-auto transform active:scale-95 transition-all duration-200 hover:-translate-y-0.5 text-slate-700 bg-white border-slate-200 hover:bg-indigo-50/50 hover:text-indigo-600 hover:border-indigo-200`}
+              >
+                <ClipboardPaste className="h-4 w-4" />
+                <span>Paste Job Description</span>
+              </button>
+
+              <button
+                type="button"
+                id="btn-add-application"
+                onClick={openNewApplicationModal}
+                className="px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 rounded-xl transition-all duration-200 shadow-sm hover:shadow-md hover:shadow-indigo-100 flex items-center justify-center gap-1.5 cursor-pointer transform active:scale-95 hover:-translate-y-0.5"
+                title="Add Application"
+              >
+                <Plus className="h-4 w-4" />
+                <span>Add</span>
+              </button>
+
+              <div className="h-6 w-px bg-slate-200 dark:bg-slate-700 hidden sm:block mx-1"></div>
               {/* Profile Icon Dropdown Container */}
               <div className="relative shrink-0" id="three-dot-menu-container">
                   <button
@@ -2113,48 +2156,6 @@ export default function App() {
                     </>
                   )}
                 </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full sm:w-auto">
-              <button
-                type="button"
-                id="btn-ats-suite"
-                onClick={() => {
-                  setViewMode("ats");
-                  window.scrollTo({ top: 0, behavior: "smooth" });
-                }}
-                className={`px-4 py-2 text-sm font-semibold rounded-xl border flex items-center justify-center gap-2 cursor-pointer shadow-xs w-full sm:w-auto transform active:scale-95 transition-all duration-200 hover:-translate-y-0.5 ${viewMode === "ats"
-                  ? "text-white bg-gradient-to-r from-indigo-600 to-violet-600 border-transparent hover:from-indigo-500 hover:to-violet-500 hover:shadow-md hover:shadow-indigo-100"
-                  : "text-slate-700 bg-white border-slate-200 hover:bg-indigo-50/50 hover:text-indigo-600 hover:border-indigo-200"
-                  }`}
-              >
-                <Sparkles className="h-4 w-4" />
-                <span>Resume &amp; ATS Suite</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setIsPasteOpen(true)}
-                className={`px-4 py-2 text-sm font-semibold rounded-xl border flex items-center justify-center gap-2 cursor-pointer shadow-xs w-full sm:w-auto transform active:scale-95 transition-all duration-200 hover:-translate-y-0.5 text-slate-700 bg-white border-slate-200 hover:bg-indigo-50/50 hover:text-indigo-600 hover:border-indigo-200`}
-              >
-                <ClipboardPaste className="h-4 w-4" />
-                <span>Paste Job Description</span>
-              </button>
-
-              <button
-                type="button"
-                id="btn-add-application"
-                onClick={openNewApplicationModal}
-                className="px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 rounded-xl transition-all duration-200 shadow-sm hover:shadow-md hover:shadow-indigo-100 flex items-center justify-center gap-1.5 cursor-pointer transform active:scale-95 hover:-translate-y-0.5"
-                title="Add Application"
-              >
-                <Plus className="h-4 w-4" />
-                <span>Add</span>
-              </button>
-
             </div>
           </div>
         </div>
@@ -2165,28 +2166,28 @@ export default function App() {
         {viewMode !== "ats" && (
           <section className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 shrink-0" id="dashboard-stats-section">
             {/* Stat Item 1 */}
-            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm aspect-square flex flex-col justify-center items-center text-center">
-              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Applications</p>
-              <p className="text-3xl font-bold mt-2 text-slate-900 font-mono">{stats.total}</p>
+            <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-sm aspect-square flex flex-col justify-center items-center text-center">
+              <p className="text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-wide">Total Applications</p>
+              <p className="text-3xl md:text-4xl font-black mt-2 text-slate-900 font-mono">{stats.total}</p>
             </div>
 
             {/* Stat Item 2 */}
-            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm aspect-square flex flex-col justify-center items-center text-center">
-              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Response Rate</p>
-              <p className="text-3xl font-bold mt-2 text-blue-600 font-mono">{stats.responseRate}</p>
+            <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-sm aspect-square flex flex-col justify-center items-center text-center">
+              <p className="text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-wide">Response Rate</p>
+              <p className="text-3xl md:text-4xl font-black mt-2 text-blue-600 font-mono">{stats.responseRate}</p>
             </div>
 
             {/* Stat Item 3 */}
-            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm aspect-square flex flex-col justify-center items-center text-center">
-              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Interview Conversion</p>
-              <p className="text-3xl font-bold mt-2 text-purple-600 font-mono">{stats.interviewRate}</p>
+            <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-sm aspect-square flex flex-col justify-center items-center text-center">
+              <p className="text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-wide">Interview Conversion</p>
+              <p className="text-3xl md:text-4xl font-black mt-2 text-purple-600 font-mono">{stats.interviewRate}</p>
             </div>
 
             {/* Stat Item 4 */}
-            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm border-b-4 border-b-red-500 aspect-square flex flex-col justify-center items-center text-center">
-              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Needs Follow-up</p>
-              <p className="text-3xl font-bold mt-2 text-red-600 font-mono flex flex-col items-center">
-                {stats.needsFollowUpCount} <span className="text-xs font-normal text-slate-400 mt-1">&gt;14 days</span>
+            <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-sm border-b-4 border-b-red-500 aspect-square flex flex-col justify-center items-center text-center">
+              <p className="text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-wide">Needs Follow-up</p>
+              <p className="text-3xl md:text-4xl font-black mt-2 text-red-600 font-mono flex flex-col items-center">
+                {stats.needsFollowUpCount} <span className="text-[9px] md:text-[10px] font-semibold text-slate-400 mt-0.5">&gt;14 days</span>
               </p>
             </div>
           </section>
